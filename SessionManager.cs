@@ -1,4 +1,5 @@
 ﻿using IRSDKSharper;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace TelemetryApp.Managers
@@ -17,6 +18,7 @@ namespace TelemetryApp.Managers
         bool wasOnPitRoad = false;
         bool wasInPitBox = false;
         int finalLapCompleted = -1;
+        int lastCompletedLap = -1;
 
         IRacingSdkDatum? sessionStateDatum = null;
         IRacingSdkDatum? sessionNumDatum = null;
@@ -25,6 +27,7 @@ namespace TelemetryApp.Managers
         IRacingSdkDatum? onPitRoadDatum = null;
         IRacingSdkDatum? pitActiveDatum = null;
         IRacingSdkDatum? carTowingDatum = null;
+        IRacingSdkDatum? lapCompletedDatum = null;
 
         public event Action<TelemetrySnapshot>? RaceStarted;
         public event Action<TelemetrySnapshot>? RaceFinished;
@@ -34,6 +37,7 @@ namespace TelemetryApp.Managers
         public event Action<TelemetrySnapshot>? PitBoxExited;
         public event Action<TelemetrySnapshot>? CarEntered;
         public event Action<TelemetrySnapshot>? CarExited;
+        public event Action<TelemetrySnapshot>? LapCompleted;
 
 
         public SessionManager()
@@ -56,6 +60,7 @@ namespace TelemetryApp.Managers
             raceStarted = false;
             raceFinished = false;
 
+            lastCompletedLap = -1;
             wasUserDriving = false;
             wasOnPitRoad = false;
             wasInPitBox = false;
@@ -68,6 +73,7 @@ namespace TelemetryApp.Managers
             onPitRoadDatum = null;
             pitActiveDatum = null;
             carTowingDatum = null;
+            lapCompletedDatum = null;
 
 
             Console.WriteLine("Stopped");
@@ -99,6 +105,47 @@ namespace TelemetryApp.Managers
         {
             shouldRestart = true;
             irsdk.Stop();
+        }
+
+        private TelemetrySnapshot GetSnapshot(IRacingSdkSessionInfo sessionInfo)
+        {
+            return new TelemetrySnapshot()
+            {
+                SessionInfo = sessionInfo,
+                WeekendInfo = sessionInfo.WeekendInfo,
+                DriverInfo = sessionInfo.DriverInfo,
+
+
+
+                SessionTick = irsdk.Data.GetInt("SessionTick"),
+                SessionNum = irsdk.Data.GetInt(sessionNumDatum),
+                SessionTime = irsdk.Data.GetFloat("SessionTime"),
+
+                PlayerCarIdx = irsdk.Data.GetInt("PlayerCarIdx"),
+                PlayerCarClassPosition = irsdk.Data.GetInt("PlayerCarClassPosition"),
+                PlayerCarMyIncidentCount = irsdk.Data.GetInt("PlayerCarMyIncidentCount"),
+
+
+                TrackTempCrew = irsdk.Data.GetFloat("TrackTempCrew"),
+                TrackWetness = irsdk.Data.GetInt("TrackWetness"),
+                Skies = irsdk.Data.GetInt("Skies"),
+                Precipitation = irsdk.Data.GetFloat("Precipitation"),
+
+
+                PitRepairLeft = irsdk.Data.GetFloat("PitRepairLeft"),
+                PitOptRepairLeft = irsdk.Data.GetFloat("PitOptRepairLeft"),
+                dpRFTireChange = irsdk.Data.GetFloat("dpRFTireChange"),
+                dpLFTireChange = irsdk.Data.GetFloat("dpLFTireChange"),
+                dpRRTireChange = irsdk.Data.GetFloat("dpRRTireChange"),
+                dpLRTireChange = irsdk.Data.GetFloat("dpLRTireChange"),
+                FastRepairAvailable = irsdk.Data.GetInt("FastRepairAvailable"),
+                FuelLevel = irsdk.Data.GetFloat("FuelLevel"),
+
+
+                LapLastLapTime = irsdk.Data.GetFloat("LapLastLapTime"),
+                Lap = irsdk.Data.GetInt("Lap"),
+                LapCompleted = irsdk.Data.GetInt(lapCompletedDatum),
+            };
         }
 
         private bool IsRaceSession(IRacingSdkSessionInfo sessionInfo)
@@ -140,7 +187,7 @@ namespace TelemetryApp.Managers
             }
 
             uint flags = irsdk.Data.GetBitField(sessionFlagsDatum);
-            int lapCompleted = irsdk.Data.GetInt("LapCompleted");
+            int lapCompleted = irsdk.Data.GetInt(lapCompletedDatum);
             int currentTick = irsdk.Data.GetInt("SessionTick");
 
             bool isCheckered = (flags & (uint)IRacingSdkEnum.Flags.Checkered) != 0;
@@ -193,58 +240,19 @@ namespace TelemetryApp.Managers
                 reset();
             }
 
-            bool isCarOnTrack = irsdk.Data.GetBool(onTrackDatum);
-            bool isOnPitRoad = irsdk.Data.GetBool(onPitRoadDatum);
-            bool isInPitBox = irsdk.Data.GetBool(pitActiveDatum);
-            float towTime = irsdk.Data.GetFloat(carTowingDatum);
-
-            bool isUserDriving = isCarOnTrack || (towTime > 0.0 && wasUserDriving);
-
-            TelemetrySnapshot snapshot = new TelemetrySnapshot()
-            {
-                SessionInfo = sessionInfo,
-                WeekendInfo = sessionInfo.WeekendInfo,
-                DriverInfo = sessionInfo.DriverInfo,
-
-
-
-                SessionTick = irsdk.Data.GetInt("SessionTick"),
-                SessionNum = irsdk.Data.GetInt(sessionNumDatum),
-                SessionTime = irsdk.Data.GetFloat("SessionTime"),
-
-                PlayerCarIdx = irsdk.Data.GetInt("PlayerCarIdx"),
-                PlayerCarClassPosition = irsdk.Data.GetInt("PlayerCarClassPosition"),
-                PlayerCarMyIncidentCount = irsdk.Data.GetInt("PlayerCarMyIncidentCount"),
-
-
-                TrackTempCrew = irsdk.Data.GetFloat("TrackTempCrew"),
-                TrackWetness = irsdk.Data.GetInt("TrackWetness"),
-                Skies = irsdk.Data.GetInt("Skies"),
-                Precipitation = irsdk.Data.GetFloat("Precipitation"),
-
-
-                PitRepairLeft = irsdk.Data.GetFloat("PitRepairLeft"),
-                PitOptRepairLeft = irsdk.Data.GetFloat("PitOptRepairLeft"),
-                dpRFTireChange = irsdk.Data.GetFloat("dpRFTireChange"),
-                dpLFTireChange = irsdk.Data.GetFloat("dpLFTireChange"),
-                dpRRTireChange = irsdk.Data.GetFloat("dpRRTireChange"),
-                dpLRTireChange = irsdk.Data.GetFloat("dpLRTireChange"),
-                FastRepairAvailable = irsdk.Data.GetInt("FastRepairAvailable"),
-                FuelLevel = irsdk.Data.GetFloat("FuelLevel"),
-
-
-                LapLastLapTime = irsdk.Data.GetFloat("LapLastLapTime"),
-                Lap = irsdk.Data.GetInt("Lap"),
-                LapCompleted = irsdk.Data.GetInt("LapCompleted"),
-            };
-
-            if (!IsRaceSession(sessionInfo))
+            if (!IsRaceSession(sessionInfo) || raceFinished)
             {
                 return;
             }
 
-            if (!raceFinished)
-            {
+
+
+
+
+
+                TelemetrySnapshot snapshot = GetSnapshot(sessionInfo);
+
+
                 if (!raceStarted && RaceHasStarted())
                 {
                     raceStarted = true;
@@ -262,8 +270,22 @@ namespace TelemetryApp.Managers
 
                 if (raceStarted)
                 {
+                    bool isCarOnTrack = irsdk.Data.GetBool(onTrackDatum);
+                    bool isOnPitRoad = irsdk.Data.GetBool(onPitRoadDatum);
+                    bool isInPitBox = irsdk.Data.GetBool(pitActiveDatum);
+                    float towTime = irsdk.Data.GetFloat(carTowingDatum);
+                    int lapCompleted = irsdk.Data.GetInt(lapCompletedDatum);
+
+                    bool isUserDriving = isCarOnTrack || (towTime > 0.0 && wasUserDriving);
+
                     if (isUserDriving)
                     {
+                        if (lapCompleted > lastCompletedLap)
+                        {
+                            Console.WriteLine($"Lap completed: {lapCompleted}");
+                            LapCompleted?.Invoke(snapshot);
+                        }
+
                         if (!wasOnPitRoad && (isOnPitRoad || (towTime > 0.0)))
                         {
                             Console.WriteLine("Entered pit road");
@@ -302,11 +324,13 @@ namespace TelemetryApp.Managers
                         Console.WriteLine("User Entered car");
                         CarEntered?.Invoke(snapshot);
                     }
+
+                    lastCompletedLap = lapCompleted;
+                    wasUserDriving = isUserDriving;
+                    wasOnPitRoad = isOnPitRoad;
+                    wasInPitBox = isInPitBox;
                 }
-            }
-            wasUserDriving = isUserDriving;
-            wasOnPitRoad = isOnPitRoad;
-            wasInPitBox = isInPitBox;
+
         }
     }
 
