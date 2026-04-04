@@ -1,7 +1,4 @@
-﻿using IRSDKSharper;
-using System;
-using System.Text;
-using System.Diagnostics;
+﻿using System.Text;
 
 using TelemetryApp.Managers;
 class Program

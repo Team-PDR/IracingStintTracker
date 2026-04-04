@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using IRSDKSharper;
 using System.Diagnostics;
-using System.Reflection.Metadata;
-using System.Text;
-
-using IRSDKSharper;
 
 namespace TelemetryApp.Managers
 {
