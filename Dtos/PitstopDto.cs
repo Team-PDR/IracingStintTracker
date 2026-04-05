@@ -1,35 +1,37 @@
 using System.Text.Json.Serialization;
 
-public class PitstopPostDto
+namespace IracingStintTracker.Dtos;
+
+public record PitstopPostDto
 {
     [JsonPropertyName("stint_id")]
-    required public int stintId { get; set; }
+    public required int stintId { get; init; }
     [JsonPropertyName("road_enter_time")]
-    required public float roadEnterTime { get; set; }
+    public required float roadEnterTime { get; init; }
     [JsonPropertyName("service_start_time")]
-    required public float serviceStartTime { get; set; }
+    public required float serviceStartTime { get; init; }
     [JsonPropertyName("fuel_start_amount")]
-    required public float fuelStartAmount { get; set; }
+    public required float fuelStartAmount { get; init; }
     [JsonPropertyName("required_repair_time")]
-    required public float requiredRepairTime { get; set; }
+    public required float requiredRepairTime { get; init; }
     [JsonPropertyName("optional_repair_time")]
-    required public float optionalRepairTime { get; set; }
+    public required float optionalRepairTime { get; init; }
     [JsonPropertyName("left_front_tire_change")]
-    required public bool leftFrontTireChange { get; set; }
+    public required bool leftFrontTireChange { get; init; }
     [JsonPropertyName("right_front_tire_change")]
-    required public bool rightFrontTireChange { get; set; }
+    public required bool rightFrontTireChange { get; init; }
     [JsonPropertyName("left_rear_tire_change")]
-    required public bool leftRearTireChange { get; set; }
+    public required bool leftRearTireChange { get; init; }
     [JsonPropertyName("right_rear_tire_change")]
-    required public bool rightRearTireChange { get; set; }
+    public required bool rightRearTireChange { get; init; }
 }
 
-public class PitstopPatchDto
+public record PitstopPatchDto
 {
     [JsonPropertyName("road_exit_time")]
-    required public float roadExitTime { get; set; }
+    public required float roadExitTime { get; init; }
     [JsonPropertyName("service_end_time")]
-    required public float serviceEndTime { get; set; }
+    public required float serviceEndTime { get; init; }
     [JsonPropertyName("fuel_end_amount")]
-    required public float fuelEndAmount { get; set; }
+    public required float fuelEndAmount { get; init; }
 }   

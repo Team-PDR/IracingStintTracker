@@ -1,12 +1,12 @@
 ﻿using System.Text;
+using IracingStintTracker;
 
-using TelemetryApp.Managers;
 class Program
 {
 
     static void Main(string[] args)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        var manager = new SessionManager();
+        var manager = new TelemetryManager();
     }
 }

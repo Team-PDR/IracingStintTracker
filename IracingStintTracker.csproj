@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="SessionManager.cs" />
+    <None Include="TelemetryManager.cs" />
   </ItemGroup>
 
   <ItemGroup>
