@@ -8,6 +8,11 @@ namespace TelemetryApp.Managers
     {
 
         readonly IRacingSdk irsdk = new();
+
+        const int LapTickDelay = 500; // delay in iracing ticks to ensure lap time is registered after crossing line
+        int? lapCompletedTick = null;
+        int? raceFinishedTick = null;
+
         bool shouldRestart = false;
         bool initialized = false;
         int sessionId = -1;
@@ -20,6 +25,7 @@ namespace TelemetryApp.Managers
         int finalLapCompleted = -1;
         int lastCompletedLap = -1;
 
+        IRacingSdkDatum? sessionTickDatum = null;
         IRacingSdkDatum? sessionStateDatum = null;
         IRacingSdkDatum? sessionNumDatum = null;
         IRacingSdkDatum? sessionFlagsDatum = null;
@@ -55,6 +61,10 @@ namespace TelemetryApp.Managers
 
         private void OnStopped()
         {
+
+            lapCompletedTick = null;
+            raceFinishedTick = null;
+
             sessionId = -1;
             initialized = false;
             raceStarted = false;
@@ -66,6 +76,7 @@ namespace TelemetryApp.Managers
             wasInPitBox = false;
             finalLapCompleted = -1;
 
+            sessionTickDatum = null;
             sessionStateDatum = null;
             sessionNumDatum = null;
             sessionFlagsDatum = null;
@@ -92,6 +103,7 @@ namespace TelemetryApp.Managers
 
         private void OnException(Exception exception)
         {
+            Console.WriteLine($"Exception: {exception.Message}");
             irsdk.Stop();
             irsdk.Start();
         }
@@ -115,9 +127,7 @@ namespace TelemetryApp.Managers
                 WeekendInfo = sessionInfo.WeekendInfo,
                 DriverInfo = sessionInfo.DriverInfo,
 
-
-
-                SessionTick = irsdk.Data.GetInt("SessionTick"),
+                SessionTick = irsdk.Data.GetInt(sessionTickDatum),
                 SessionNum = irsdk.Data.GetInt(sessionNumDatum),
                 SessionTime = irsdk.Data.GetFloat("SessionTime"),
 
@@ -188,7 +198,7 @@ namespace TelemetryApp.Managers
 
             uint flags = irsdk.Data.GetBitField(sessionFlagsDatum);
             int lapCompleted = irsdk.Data.GetInt(lapCompletedDatum);
-            int currentTick = irsdk.Data.GetInt("SessionTick");
+            int currentTick = irsdk.Data.GetInt(sessionTickDatum);
 
             bool isCheckered = (flags & (uint)IRacingSdkEnum.Flags.Checkered) != 0;
 
@@ -225,6 +235,7 @@ namespace TelemetryApp.Managers
             {
                 initialized = true;
                 sessionId = sessionInfo.WeekendInfo.SubSessionID;
+                sessionTickDatum = irsdk.Data.TelemetryDataProperties["SessionTick"];
                 sessionStateDatum = irsdk.Data.TelemetryDataProperties["SessionState"];
                 sessionNumDatum = irsdk.Data.TelemetryDataProperties["SessionNum"];
                 sessionFlagsDatum = irsdk.Data.TelemetryDataProperties["SessionFlags"];
@@ -246,90 +257,96 @@ namespace TelemetryApp.Managers
             }
 
 
+            TelemetrySnapshot snapshot = GetSnapshot(sessionInfo);
+
+            int currentTick = irsdk.Data.GetInt(sessionTickDatum);
 
 
+            if (!raceStarted && RaceHasStarted())
+            {
+                raceStarted = true;
+                Console.WriteLine("Race started!");
+                RaceStarted?.Invoke(snapshot);
+            }
 
+            if (!raceFinished && RaceHasEnded())
+            {
+                raceFinished = true;
+                raceFinishedTick = currentTick;
+                Console.WriteLine("Race finished!");
+                RaceFinished?.Invoke(snapshot);
+            }
 
-                TelemetrySnapshot snapshot = GetSnapshot(sessionInfo);
+            if (raceStarted)
+            {
+                bool isCarOnTrack = irsdk.Data.GetBool(onTrackDatum);
+                bool isOnPitRoad = irsdk.Data.GetBool(onPitRoadDatum);
+                bool isInPitBox = irsdk.Data.GetBool(pitActiveDatum);
+                float towTime = irsdk.Data.GetFloat(carTowingDatum);
+                int lapCompleted = irsdk.Data.GetInt(lapCompletedDatum);
 
+                bool isUserDriving = isCarOnTrack || (towTime > 0.0 && wasUserDriving);
 
-                if (!raceStarted && RaceHasStarted())
+                if (isUserDriving)
                 {
-                    raceStarted = true;
-                    Console.WriteLine("Race started!");
-                    RaceStarted?.Invoke(snapshot);
-                }
-
-                if (RaceHasEnded())
-                {
-                    raceFinished = true;
-                    Console.WriteLine("Race finished!");
-                    RaceFinished?.Invoke(snapshot);
-                    return;
-                }
-
-                if (raceStarted)
-                {
-                    bool isCarOnTrack = irsdk.Data.GetBool(onTrackDatum);
-                    bool isOnPitRoad = irsdk.Data.GetBool(onPitRoadDatum);
-                    bool isInPitBox = irsdk.Data.GetBool(pitActiveDatum);
-                    float towTime = irsdk.Data.GetFloat(carTowingDatum);
-                    int lapCompleted = irsdk.Data.GetInt(lapCompletedDatum);
-
-                    bool isUserDriving = isCarOnTrack || (towTime > 0.0 && wasUserDriving);
-
-                    if (isUserDriving)
+                    if (lapCompleted > lastCompletedLap)
                     {
-                        if (lapCompleted > lastCompletedLap)
-                        {
-                            Console.WriteLine($"Lap completed: {lapCompleted}");
-                            LapCompleted?.Invoke(snapshot);
-                        }
+                        lapCompletedTick = currentTick;
 
-                        if (!wasOnPitRoad && (isOnPitRoad || (towTime > 0.0)))
-                        {
-                            Console.WriteLine("Entered pit road");
-                            PitRoadEntered?.Invoke(snapshot);
-                        }
-
-                        if (wasOnPitRoad && !isOnPitRoad)
-                        {
-                            Console.WriteLine("Exited pit road");
-                            PitRoadExited?.Invoke(snapshot);
-                        }
-
-                        if (!wasInPitBox && isInPitBox)
-                        {
-                            Console.WriteLine("Entered pit box");
-                            PitBoxEntered?.Invoke(snapshot);
-                        }
-
-                        if (wasInPitBox && !isInPitBox)
-                        {
-                            Console.WriteLine("Exited pit box");
-                            PitBoxExited?.Invoke(snapshot);
-                        }
-
+                        
                     }
 
-                    // driver swaps
-                    if (wasUserDriving && !isUserDriving)
+                    if (lapCompletedTick.HasValue && (currentTick - lapCompletedTick.Value) >= LapTickDelay)
                     {
-                        Console.WriteLine("User exited car");
-                        CarExited?.Invoke(snapshot);
+                        lapCompletedTick = null;
+                        Console.WriteLine($"Lap completed: {lapCompleted} after delay: {LapTickDelay}");
+                        LapCompleted?.Invoke(snapshot);
                     }
 
-                    if (!wasUserDriving && isUserDriving)
+                    if (!wasOnPitRoad && (isOnPitRoad || (towTime > 0.0)))
                     {
-                        Console.WriteLine("User Entered car");
-                        CarEntered?.Invoke(snapshot);
+                        Console.WriteLine("Entered pit road");
+                        PitRoadEntered?.Invoke(snapshot);
                     }
 
-                    lastCompletedLap = lapCompleted;
-                    wasUserDriving = isUserDriving;
-                    wasOnPitRoad = isOnPitRoad;
-                    wasInPitBox = isInPitBox;
+                    if (wasOnPitRoad && !isOnPitRoad)
+                    {
+                        Console.WriteLine("Exited pit road");
+                        PitRoadExited?.Invoke(snapshot);
+                    }
+
+                    if (!wasInPitBox && isInPitBox)
+                    {
+                        Console.WriteLine("Entered pit box");
+                        PitBoxEntered?.Invoke(snapshot);
+                    }
+
+                    if (wasInPitBox && !isInPitBox)
+                    {
+                        Console.WriteLine("Exited pit box");
+                        PitBoxExited?.Invoke(snapshot);
+                    }
+
                 }
+
+                // driver swaps
+                if (wasUserDriving && !isUserDriving)
+                {
+                    Console.WriteLine("User exited car");
+                    CarExited?.Invoke(snapshot);
+                }
+
+                if (!wasUserDriving && isUserDriving)
+                {
+                    Console.WriteLine("User Entered car");
+                    CarEntered?.Invoke(snapshot);
+                }
+
+                lastCompletedLap = lapCompleted;
+                wasUserDriving = isUserDriving;
+                wasOnPitRoad = isOnPitRoad;
+                wasInPitBox = isInPitBox;
+            }
 
         }
     }
