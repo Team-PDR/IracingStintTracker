@@ -1,43 +1,43 @@
 ﻿using System.Text.Json.Serialization;
 
-public class StintPostDto
+public record StintPostDto
 {
     [JsonPropertyName("session_id")]
-    required public int sessionId { get; set; }
+    public required int sessionId { get; init; }
     [JsonPropertyName("stint_number")]
-    required public int stintNumber { get; set; }
+    public required int stintNumber { get; init; }
     [JsonPropertyName("driver_name")]
-    required public string driverName { get; set; }
+    public required string driverName { get; init; }
 
     [JsonPropertyName("start_time")]
-    required public float startTime { get; set; }
+    public required float startTime { get; init; }
     [JsonPropertyName("start_position")]
-    required public int startPosition { get; set; }
+    public required int startPosition { get; init; }
     [JsonPropertyName("start_incidents")]
-    required public int startIncidents { get; set; }
+    public required int startIncidents { get; init; }
     [JsonPropertyName("start_fuel")]
-    required public float startFuel { get; set; }
+    public required float startFuel { get; init; }
     [JsonPropertyName("track_temp")]
-    required public float trackTemp { get; set; }
+    public required float trackTemp { get; init; }
     [JsonPropertyName("track_wetness")]
-    required public int trackWetness { get; set; }
+    public required int trackWetness { get; init; }
     [JsonPropertyName("sky_cover")]
-    required public int skyCover { get; set; }
+    public required int skyCover { get; init; }
     [JsonPropertyName("precipitation")]
-    required public float precipitation { get; set; }
+    public required float precipitation { get; init; }
 }
 
-public class StintPatchDto
+public record StintPatchDto
 {
     [JsonPropertyName("end_time")]
-    public float? endTime { get; set; }
+    public float? endTime { get; init; }
     [JsonPropertyName("end_position")]
-    public int? endPosition { get; set; }
+    public int? endPosition { get; init; }
     [JsonPropertyName("end_fuel")]
-    public float? endFuel { get; set; }
+    public float? endFuel { get; init; }
     [JsonPropertyName("end_incidents")]
-    public int? endIncidents { get; set; }
+    public int? endIncidents { get; init; }
     [JsonPropertyName("is_complete")]
-    required public bool isComplete { get; set; }
+    public required bool isComplete { get; init; }
 
 }

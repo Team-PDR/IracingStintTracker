@@ -277,7 +277,9 @@ namespace TelemetryApp.Managers
                 RaceFinished?.Invoke(snapshot);
             }
 
-            if (raceStarted)
+            bool raceFinishedDelayed = raceFinishedTick.HasValue && (currentTick - raceFinishedTick.Value) >= LapTickDelay;
+
+            if (raceStarted && !raceFinishedDelayed)
             {
                 bool isCarOnTrack = irsdk.Data.GetBool(onTrackDatum);
                 bool isOnPitRoad = irsdk.Data.GetBool(onPitRoadDatum);
@@ -292,8 +294,6 @@ namespace TelemetryApp.Managers
                     if (lapCompleted > lastCompletedLap)
                     {
                         lapCompletedTick = currentTick;
-
-                        
                     }
 
                     if (lapCompletedTick.HasValue && (currentTick - lapCompletedTick.Value) >= LapTickDelay)
