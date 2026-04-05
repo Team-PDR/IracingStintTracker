@@ -41,6 +41,8 @@ public class TelemetryManager
     public event Action<TelemetrySnapshot>? PitBoxExited;
     public event Action<TelemetrySnapshot>? LapCompleted;
     public event Action<TelemetrySnapshot>? UserStartedRace;
+    public event Action? CarEntered;
+    public event Action? CarExited;
 
 
     public TelemetryManager()
@@ -339,6 +341,22 @@ public class TelemetryManager
                     }
                 }
 
+            }
+
+            if (!raceFinished)
+            {
+                // driver swaps
+                if (wasUserDriving && !isUserDriving)
+                {
+                    Console.WriteLine("User exited car");
+                    CarExited?.Invoke();
+                }
+
+                if (!wasUserDriving && isUserDriving)
+                {
+                    Console.WriteLine("User Entered car");
+                    CarEntered?.Invoke();
+                }
             }
 
             lastCompletedLap = lapCompleted;
