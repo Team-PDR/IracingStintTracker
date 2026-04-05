@@ -9,6 +9,7 @@ public class TelemetryManager
 
     const int LapTickDelay = 500; // delay in iracing ticks to ensure lap time is registered after crossing line
     int? lapCompletedTick = null;
+    TelemetrySnapshot? tempSnapshot = null;
 
     bool shouldRestart = false;
     bool initialized = false;
@@ -60,6 +61,7 @@ public class TelemetryManager
     {
 
         lapCompletedTick = null;
+        tempSnapshot = null;
 
         sessionId = -1;
         initialized = false;
@@ -298,6 +300,7 @@ public class TelemetryManager
                 if (lapCompleted > 0 && lapCompleted > lastCompletedLap)
                 {
                     lapCompletedTick = currentTick;
+                    tempSnapshot = snapshot;
                 }
 
                 if (lapCompletedTick.HasValue && (currentTick - lapCompletedTick.Value) >= LapTickDelay)
@@ -305,7 +308,8 @@ public class TelemetryManager
                     lapCompletedTick = null;
                     float lapTime = irsdk.Data.GetFloat("LapLastLapTime");
                     Console.WriteLine($"Lap completed: {lapCompleted} Lap Time {lapTime} after delay: {LapTickDelay}");
-                    LapCompleted?.Invoke(snapshot);
+                    LapCompleted?.Invoke(tempSnapshot!);
+                    tempSnapshot = null;
                 }
 
                 if (!raceFinished)
