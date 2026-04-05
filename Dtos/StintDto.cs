@@ -6,8 +6,8 @@ public record StintPostDto
 {
     [JsonPropertyName("session_id")]
     public required int sessionId { get; init; }
-    [JsonPropertyName("stint_number")]
-    public required int stintNumber { get; init; }
+    //[JsonPropertyName("stint_number")]
+    //public required int stintNumber { get; init; }
     [JsonPropertyName("driver_name")]
     public required string driverName { get; init; }
 

@@ -355,29 +355,29 @@ public class TelemetryManager
     // Session state
     public required int SessionTick { get; init; }
     public required int SessionNum { get; init; }
-    public float? SessionTime { get; init; }
-    public int? PlayerCarClassPosition { get; init; }
-    public int? PlayerCarMyIncidentCount { get; init; }
+    public float SessionTime { get; init; }
+    public int PlayerCarClassPosition { get; init; }
+    public int PlayerCarMyIncidentCount { get; init; }
        
         
-    public float? TrackTempCrew { get; init; }
-    public int? TrackWetness { get; init; }
-    public int? Skies { get; init; }
-    public float? Precipitation { get; init; }
+    public float TrackTempCrew { get; init; }
+    public int TrackWetness { get; init; }
+    public int Skies { get; init; }
+    public float Precipitation { get; init; }
 
     // Pit info
-    public float? PitRepairLeft { get; init; }
-    public float? PitOptRepairLeft { get; init; }
-    public float? dpRFTireChange { get; init; }
-    public float? dpLFTireChange { get; init; }
-    public float? dpRRTireChange { get; init; }
-    public float? dpLRTireChange { get; init; }
-    public int? FastRepairAvailable { get; init; }
-    public float? FuelLevel { get; init; }
+    public float PitRepairLeft { get; init; }
+    public float PitOptRepairLeft { get; init; }
+    public float dpRFTireChange { get; init; }
+    public float dpLFTireChange { get; init; }
+    public float dpRRTireChange { get; init; }
+    public float dpLRTireChange { get; init; }
+    public int FastRepairAvailable { get; init; }
+    public float FuelLevel { get; init; }
 
     // Lap info
-    public float? LapLastLapTime { get; init; }
-    public int? Lap { get; init; }
-    public int? LapCompleted { get; init; }
+    public float LapLastLapTime { get; init; }
+    public int Lap { get; init; }
+    public int LapCompleted { get; init; }
 }
 
