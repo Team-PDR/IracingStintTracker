@@ -1,5 +1,4 @@
 ﻿using IRSDKSharper;
-using System.ComponentModel;
 using System.Diagnostics;
 
 namespace IracingStintTracker;
