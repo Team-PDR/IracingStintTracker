@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
+namespace IracingStintTracker.Dtos;
+
 public record StintPostDto
 {
     [JsonPropertyName("session_id")]
