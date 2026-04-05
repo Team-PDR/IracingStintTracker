@@ -38,9 +38,8 @@ public class TelemetryManager
     public event Action<TelemetrySnapshot>? PitRoadExited;
     public event Action<TelemetrySnapshot>? PitBoxEntered;
     public event Action<TelemetrySnapshot>? PitBoxExited;
-    public event Action<TelemetrySnapshot>? CarEntered;
-    public event Action<TelemetrySnapshot>? CarExited;
     public event Action<TelemetrySnapshot>? LapCompleted;
+    public event Action<TelemetrySnapshot>? UserStartedRace;
 
 
     public TelemetryManager()
@@ -258,7 +257,10 @@ public class TelemetryManager
 
         TelemetrySnapshot snapshot = GetSnapshot(sessionInfo);
 
-        int currentTick = irsdk.Data.GetInt(sessionTickDatum);
+        
+        bool isCarOnTrack = irsdk.Data.GetBool(onTrackDatum);
+        float towTime = irsdk.Data.GetFloat(carTowingDatum);
+        bool isUserDriving = isCarOnTrack || (towTime > 0.0 && wasUserDriving);
 
 
         if (!raceStarted && RaceHasStarted())
@@ -266,6 +268,11 @@ public class TelemetryManager
             raceStarted = true;
             Console.WriteLine("Race started!");
             RaceStarted?.Invoke(snapshot);
+
+            if (isUserDriving)
+            {
+                UserStartedRace?.Invoke(snapshot);
+            }
         }
 
         if (!raceFinished && RaceHasEnded())
@@ -277,16 +284,17 @@ public class TelemetryManager
 
         if (raceStarted)
         {
-            bool isCarOnTrack = irsdk.Data.GetBool(onTrackDatum);
+            
             bool isOnPitRoad = irsdk.Data.GetBool(onPitRoadDatum);
-            bool isInPitBox = irsdk.Data.GetBool(pitActiveDatum);
-            float towTime = irsdk.Data.GetFloat(carTowingDatum);
+            bool isInPitBox = irsdk.Data.GetBool(pitActiveDatum);  
             int lapCompleted = irsdk.Data.GetInt(lapCompletedDatum);
 
-            bool isUserDriving = isCarOnTrack || (towTime > 0.0 && wasUserDriving);
+            
 
             if (isUserDriving)
             {
+                int currentTick = irsdk.Data.GetInt(sessionTickDatum);
+
                 if (lapCompleted > 0 && lapCompleted > lastCompletedLap)
                 {
                     lapCompletedTick = currentTick;
@@ -328,24 +336,6 @@ public class TelemetryManager
                 }
 
             }
-
-            if (!raceFinished)
-            {
-                // driver swaps
-                if (wasUserDriving && !isUserDriving)
-                {
-                    Console.WriteLine("User exited car");
-                    CarExited?.Invoke(snapshot);
-                }
-
-                if (!wasUserDriving && isUserDriving)
-                {
-                    Console.WriteLine("User Entered car");
-                    CarEntered?.Invoke(snapshot);
-                }
-            }
-
-            
 
             lastCompletedLap = lapCompleted;
             wasUserDriving = isUserDriving;
