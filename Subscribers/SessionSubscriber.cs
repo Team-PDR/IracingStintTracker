@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using IracingStintTracker.Dtos;
+﻿using IracingStintTracker.Dtos;
 using IRSDKSharper;
 
 namespace IracingStintTracker.Subscribers;
@@ -11,7 +8,6 @@ internal class SessionSubscriber : RaceEventSubscriber
     public SessionSubscriber(TelemetryManager manager) : base(manager) 
     {
         this.manager.RaceStarted += OnRaceStarted;
-        this.manager.RaceFinished += OnRaceFinished;
     }
 
     private int GetRaceDuration(IRacingSdkSessionInfo sessionInfo, int sessionNum)
@@ -41,6 +37,11 @@ internal class SessionSubscriber : RaceEventSubscriber
         string carClassName = userCarInfo.CarClassShortName;
         string carName = userCarInfo.CarScreenName;
 
+        if (string.IsNullOrEmpty(carClassName))
+        {
+            carClassName = carName;
+        }
+
         SessionPostDto session = new SessionPostDto
         {
             sessionId = weekendInfo.SubSessionID,
@@ -53,9 +54,5 @@ internal class SessionSubscriber : RaceEventSubscriber
 
         Console.WriteLine($"New session created: {session}");
     }
-
-
-
-
 }
 

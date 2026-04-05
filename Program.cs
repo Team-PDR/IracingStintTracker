@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using IracingStintTracker;
+using IracingStintTracker.Subscribers;
 
 class Program
 {
@@ -8,5 +9,7 @@ class Program
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         var manager = new TelemetryManager();
+
+        var sessionSubscriber = new SessionSubscriber(manager);
     }
 }

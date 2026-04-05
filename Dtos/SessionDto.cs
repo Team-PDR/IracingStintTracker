@@ -15,5 +15,5 @@ public record SessionPostDto
     [JsonPropertyName("race_duration")]
     public required int raceDuration { get; init; }
     [JsonPropertyName("session_date")]
-    public required DateTime sessionDate { get; init; }
+    public required DateOnly sessionDate { get; init; }
 }
