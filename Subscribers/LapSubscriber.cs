@@ -14,7 +14,7 @@ namespace IracingStintTracker.Subscribers
 
         protected override void OnRaceStarted(TelemetrySnapshot snapshot)
         {
-            this.manager.LapCompleted += OnLapCompleted;
+            manager.LapCompleted += OnLapCompleted;
         }
 
         private void OnLapCompleted(TelemetrySnapshot snapshot)

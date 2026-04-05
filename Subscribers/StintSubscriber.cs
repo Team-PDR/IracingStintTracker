@@ -18,10 +18,22 @@ namespace IracingStintTracker.Subscribers
 
         protected override void OnRaceStarted(TelemetrySnapshot snapshot)
         {
-            this.manager.UserStartedRace += OnUserStartedRace;
-            this.manager.LapCompleted += OnLapCompleted;
-            this.manager.PitBoxEntered += OnPitBoxEntered;
-            this.manager.PitBoxExited += OnPitBoxExited;
+            manager.UserStartedRace += OnUserStartedRace;
+            manager.LapCompleted += OnLapCompleted;
+            manager.PitBoxEntered += OnPitBoxEntered;
+            manager.PitBoxExited += OnPitBoxExited;
+        }
+
+        protected override void OnRaceFinished(TelemetrySnapshot snapshot)
+        {
+            manager.UserStartedRace -= OnUserStartedRace;
+            manager.LapCompleted -= OnLapCompleted;
+            manager.PitBoxEntered -= OnPitBoxEntered;
+            manager.PitBoxExited -= OnPitBoxExited;
+            if (currentStint != null) 
+            {
+                EndStint(snapshot);
+            }
         }
 
         private static string GetDriverName(IRacingSdkSessionInfo sessionInfo, int carId)
