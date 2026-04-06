@@ -7,12 +7,12 @@ public record StintPostDto
     [JsonPropertyName("session_id")]
     public required int SessionId { get; init; }
     [JsonPropertyName("stint_number")]
-    public required int stintNumber { get; init; }
+    public required int StintNumber { get; init; }
     [JsonPropertyName("driver_name")]
     public required string DriverName { get; init; }
 
     [JsonPropertyName("start_time")]
-    public required float StartTime { get; init; }
+    public required double StartTime { get; init; }
     [JsonPropertyName("start_position")]
     public required int StartPosition { get; init; }
     [JsonPropertyName("start_incidents")]
@@ -32,7 +32,7 @@ public record StintPostDto
 public record StintPatchDto
 {
     [JsonPropertyName("end_time")]
-    public float? EndTime { get; init; }
+    public double? EndTime { get; init; }
     [JsonPropertyName("end_position")]
     public int? EndPosition { get; init; }
     [JsonPropertyName("end_fuel")]

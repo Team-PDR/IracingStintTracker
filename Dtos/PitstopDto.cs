@@ -7,9 +7,9 @@ public record PitstopPostDto
     [JsonPropertyName("stint_id")]
     public required int StintId { get; init; }
     [JsonPropertyName("road_enter_time")]
-    public required float RoadEnterTime { get; init; }
+    public required double RoadEnterTime { get; init; }
     [JsonPropertyName("service_start_time")]
-    public required float ServiceStartTime { get; init; }
+    public required double ServiceStartTime { get; init; }
     [JsonPropertyName("fuel_start_amount")]
     public required float FuelStartAmount { get; init; }
     [JsonPropertyName("required_repair_time")]
@@ -29,9 +29,9 @@ public record PitstopPostDto
 public record PitstopPatchDto
 {
     [JsonPropertyName("road_exit_time")]
-    public required float RoadExitTime { get; set; }
+    public required double RoadExitTime { get; set; }
     [JsonPropertyName("service_end_time")]
-    public required float ServiceEndTime { get; init; }
+    public required double ServiceEndTime { get; init; }
     [JsonPropertyName("fuel_end_amount")]
     public required float FuelEndAmount { get; init; }
 }
@@ -45,10 +45,10 @@ public record PitstopResponseDto
     public required int StintId { get; init; }
 
     [JsonPropertyName("road_enter_time")]
-    public required float RoadEnterTime { get; init; }
+    public required double RoadEnterTime { get; init; }
 
     [JsonPropertyName("service_start_time")]
-    public required float ServiceStartTime { get; init; }
+    public required double ServiceStartTime { get; init; }
 
     [JsonPropertyName("fuel_start_amount")]
     public required float FuelStartAmount { get; init; }
@@ -72,11 +72,11 @@ public record PitstopResponseDto
     public required bool RightRearTireChange { get; init; }
 
     [JsonPropertyName("service_end_time")]
-    public required float ServiceEndTime { get; init; }
+    public required double ServiceEndTime { get; init; }
 
     [JsonPropertyName("fuel_end_amount")]
     public required float FuelEndAmount { get; init; }
 
     [JsonPropertyName("road_exit_time")]
-    public required float RoadExitTime { get; init; }
+    public required double RoadExitTime { get; init; }
 }

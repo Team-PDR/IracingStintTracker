@@ -132,7 +132,7 @@ public class TelemetryManager
 
             SessionTick = irsdk.Data.GetInt(sessionTickDatum),
             SessionNum = irsdk.Data.GetInt(sessionNumDatum),
-            SessionTime = irsdk.Data.GetFloat("SessionTime"),
+            SessionTime = irsdk.Data.GetDouble("SessionTime"),
 
             PlayerCarIdx = irsdk.Data.GetInt("PlayerCarIdx"),
             PlayerCarClassPosition = irsdk.Data.GetInt("PlayerCarClassPosition"),
@@ -172,7 +172,7 @@ public class TelemetryManager
     private bool RaceHasStarted()
     {
 
-        IRacingSdkEnum.SessionState sessionState = (IRacingSdkEnum.SessionState)irsdk.Data.GetInt(sessionStateDatum);
+        var sessionState = (IRacingSdkEnum.SessionState)irsdk.Data.GetInt(sessionStateDatum);
 
         bool isRacing = sessionState == IRacingSdkEnum.SessionState.Racing;
 
@@ -183,7 +183,7 @@ public class TelemetryManager
 
     private bool RaceHasEnded()
     {
-        IRacingSdkEnum.SessionState sessionState = (IRacingSdkEnum.SessionState)irsdk.Data.GetInt(sessionStateDatum);
+        var sessionState = (IRacingSdkEnum.SessionState)irsdk.Data.GetInt(sessionStateDatum);
 
         if (sessionState == IRacingSdkEnum.SessionState.CoolDown)
         {
@@ -227,6 +227,8 @@ public class TelemetryManager
 
     private void OnTelemetryData()
     {
+        int tempTick = irsdk.Data.GetInt("SessionTick");
+        Console.WriteLine($"{tempTick}");
         IRacingSdkSessionInfo? sessionInfo = irsdk.Data.SessionInfo;
         if (sessionInfo?.SessionInfo == null)
         {
@@ -259,7 +261,7 @@ public class TelemetryManager
             return;
         }
 
-        TelemetrySnapshot snapshot = GetSnapshot(sessionInfo);
+        var snapshot = GetSnapshot(sessionInfo);
 
         
         bool isCarOnTrack = irsdk.Data.GetBool(onTrackDatum);
@@ -310,6 +312,7 @@ public class TelemetryManager
                     lapCompletedTick = null;
                     float lapTime = irsdk.Data.GetFloat("LapLastLapTime");
                     Console.WriteLine($"Lap completed: {lapCompleted} Lap Time {lapTime} after delay: {LapTickDelay}");
+                    tempSnapshot!.LapLastLapTime = lapTime;
                     LapCompleted?.Invoke(tempSnapshot!);
                     tempSnapshot = null;
                 }
@@ -368,7 +371,7 @@ public class TelemetryManager
     }
 }
 
-    public record TelemetrySnapshot
+public record TelemetrySnapshot
 {
     // Session / Weekend / Driver info
     public required IRacingSdkSessionInfo SessionInfo { get; init; }
@@ -377,7 +380,7 @@ public class TelemetryManager
     // Session state
     public required int SessionTick { get; init; }
     public required int SessionNum { get; init; }
-    public float SessionTime { get; init; }
+    public double SessionTime { get; init; }
     public int PlayerCarClassPosition { get; init; }
     public int PlayerCarMyIncidentCount { get; init; }
        
@@ -398,7 +401,7 @@ public class TelemetryManager
     public float FuelLevel { get; init; }
 
     // Lap info
-    public float LapLastLapTime { get; init; }
+    public float LapLastLapTime { get; set; }
     public int Lap { get; init; }
     public int LapCompleted { get; init; }
 }

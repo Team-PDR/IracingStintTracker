@@ -5,8 +5,8 @@ namespace IracingStintTracker.Subscribers;
 internal class PitstopSubscriber : RaceEventSubscriber
 {
     private PitstopPostDto? currentPitstop = null;
-    private float? roadEnterTime = null;
-    private float? serviceEndTime = null;
+    private double? roadEnterTime = null;
+    private double? serviceEndTime = null;
     private float? fuelEndAmount = null;
     public PitstopSubscriber(TelemetryManager manager) : base(manager)
     {
@@ -82,6 +82,7 @@ internal class PitstopSubscriber : RaceEventSubscriber
     private void OnPitRoadExited(TelemetrySnapshot snapshot)
     {
 
+        if (currentPitstop == null) { return; }
 
         var pitstop = new PitstopPatchDto()
         {

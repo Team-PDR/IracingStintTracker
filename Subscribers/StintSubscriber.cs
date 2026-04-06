@@ -68,6 +68,7 @@ internal class StintSubscriber : RaceEventSubscriber
         currentStint = new StintPostDto ()
         {
             SessionId = snapshot.SessionInfo.WeekendInfo.SubSessionID,
+            StintNumber = 1, // TODO: get stint number
             DriverName = GetDriverName(snapshot.SessionInfo, snapshot.PlayerCarIdx),
             StartTime = snapshot.SessionTime,
             StartPosition = snapshot.PlayerCarClassPosition,
