@@ -6,8 +6,8 @@ public record StintPostDto
 {
     [JsonPropertyName("session_id")]
     public required int SessionId { get; init; }
-    //[JsonPropertyName("stint_number")]
-    //public required int stintNumber { get; init; }
+    [JsonPropertyName("stint_number")]
+    public required int stintNumber { get; init; }
     [JsonPropertyName("driver_name")]
     public required string DriverName { get; init; }
 
@@ -42,4 +42,40 @@ public record StintPatchDto
     [JsonPropertyName("is_complete")]
     public required bool IsComplete { get; init; }
 
+}
+
+public record StintResponseDto
+{
+    [JsonPropertyName("id")]
+    public required int StintId { get; init; }
+    [JsonPropertyName("session_id")]
+    public required int SessionId { get; init; }
+    [JsonPropertyName("laps")]
+    public required List<LapResponseDto> Laps { get; init; } = new();
+
+    [JsonPropertyName("driver_name")]
+    public required string DriverName { get; init; }
+
+    [JsonPropertyName("start_time")]
+    public required float StartTime { get; init; }
+    [JsonPropertyName("start_position")]
+    public required int StartPosition { get; init; }
+    [JsonPropertyName("start_incidents")]
+    public required int StartIncidents { get; init; }
+    [JsonPropertyName("start_fuel")]
+    public required float StartFuel { get; init; }
+    [JsonPropertyName("track_temp")]
+    public required float TrackTemp { get; init; }
+    [JsonPropertyName("track_wetness")]
+    public required string TrackWetness { get; init; }
+    [JsonPropertyName("sky_cover")]
+    public required string SkyCover { get; init; }
+    [JsonPropertyName("precipitation")]
+    public required float Precipitation { get; init; }
+
+
+    [JsonPropertyName("end_position")]
+    public int? EndPosition { get; init; }
+    [JsonPropertyName("duration")]
+    public float? Duration { get; init; }
 }
