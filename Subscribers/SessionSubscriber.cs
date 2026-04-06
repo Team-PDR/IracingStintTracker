@@ -12,7 +12,7 @@ internal class SessionSubscriber : RaceEventSubscriber
 
     private int GetRaceDuration(IRacingSdkSessionInfo sessionInfo, int sessionNum)
     {
-        List<IRacingSdkSessionInfo.SessionInfoModel.SessionModel> sessions = sessionInfo.SessionInfo.Sessions;
+        var sessions = sessionInfo.SessionInfo.Sessions;
 
         string duration = sessions[sessionNum].SessionTime.Split(' ')[0];
 
@@ -29,11 +29,11 @@ internal class SessionSubscriber : RaceEventSubscriber
     protected override void OnRaceStarted(TelemetrySnapshot snapshot) 
     {
 
-        IRacingSdkSessionInfo.WeekendInfoModel weekendInfo = snapshot.SessionInfo.WeekendInfo;
-        IRacingSdkSessionInfo.DriverInfoModel driverInfo = snapshot.SessionInfo.DriverInfo;
+        var weekendInfo = snapshot.SessionInfo.WeekendInfo;
+        var driverInfo = snapshot.SessionInfo.DriverInfo;
 
         int playerCarId = snapshot.PlayerCarIdx;
-        IRacingSdkSessionInfo.DriverInfoModel.DriverModel userCarInfo = driverInfo.Drivers[playerCarId];
+        var userCarInfo = driverInfo.Drivers[playerCarId];
         string carClassName = userCarInfo.CarClassShortName;
         string carName = userCarInfo.CarScreenName;
 
@@ -42,17 +42,19 @@ internal class SessionSubscriber : RaceEventSubscriber
             carClassName = carName;
         }
 
-        SessionPostDto session = new SessionPostDto
+        var session = new SessionPostDto
         {
-            sessionId = weekendInfo.SubSessionID,
-            trackName = weekendInfo.TrackDisplayName,
-            carClass = carClassName,
-            car = carName,
-            raceDuration = GetRaceDuration(snapshot.SessionInfo, snapshot.SessionNum),
-            sessionDate = DateOnly.FromDateTime(DateTime.Now)
+            SessionId = weekendInfo.SubSessionID,
+            TrackName = weekendInfo.TrackDisplayName,
+            CarClass = carClassName,
+            Car = carName,
+            RaceDuration = GetRaceDuration(snapshot.SessionInfo, snapshot.SessionNum),
+            SessionDate = DateOnly.FromDateTime(DateTime.Now)
         };
 
         Console.WriteLine($"New session created: {session}");
+
+        // TODO: post session to API
     }
 }
 

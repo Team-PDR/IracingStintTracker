@@ -20,12 +20,12 @@ internal class LapSubscriber : RaceEventSubscriber
     {
         var lap = new LapPostDto()
         {
-            stintId = 1, // TODO: Get stintId from somewhere
-            lapNumber = snapshot.LapCompleted,
-            lapTime = snapshot.LapLastLapTime,
-            position = snapshot.PlayerCarClassPosition,
-            incidents = snapshot.PlayerCarMyIncidentCount,
-            startFuel = snapshot.FuelLevel,
+            StintId = 1, // TODO: Get stintId from somewhere
+            LapNumber = snapshot.LapCompleted,
+            LapTime = snapshot.LapLastLapTime,
+            Position = snapshot.PlayerCarClassPosition,
+            Incidents = snapshot.PlayerCarMyIncidentCount,
+            StartFuel = snapshot.FuelLevel,
         };
 
         Console.WriteLine($"Created Lap: {lap}");

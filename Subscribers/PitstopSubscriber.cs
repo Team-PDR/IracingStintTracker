@@ -16,24 +16,22 @@ internal class PitstopSubscriber : RaceEventSubscriber
 
     protected override void SubscribeToCarEvents()
     {
+        base.SubscribeToCarEvents();
         manager.PitRoadEntered += OnPitRoadEntered;
         manager.PitRoadExited += OnPitRoadExited;
         manager.PitBoxEntered += OnPitBoxEntered;
         manager.PitBoxExited += OnPitBoxExited;
         manager.CarExited += OnCarExited;
         manager.CarEntered += OnCarEntered;
-
-        subscribed = true;
     }
 
     protected override void UnsubscribeFromCarEvents()
     {
+        base.UnsubscribeFromCarEvents();
         manager.PitRoadEntered -= OnPitRoadEntered;
         manager.PitRoadExited -= OnPitRoadExited;
         manager.PitBoxEntered -= OnPitBoxEntered;
         manager.PitBoxExited -= OnPitBoxExited;
-
-        subscribed = false;
     }
 
     private void ResetState()
@@ -85,11 +83,11 @@ internal class PitstopSubscriber : RaceEventSubscriber
     {
 
 
-        PitstopPatchDto pitstop = new PitstopPatchDto()
+        var pitstop = new PitstopPatchDto()
         {
-            roadExitTime = snapshot.SessionTime,
-            serviceEndTime = this.serviceEndTime!.Value,
-            fuelEndAmount = this.fuelEndAmount!.Value,
+            RoadExitTime = snapshot.SessionTime,
+            ServiceEndTime = this.serviceEndTime!.Value,
+            FuelEndAmount = this.fuelEndAmount!.Value,
         };
 
         // TODO: send currentPitstopPastch to API
@@ -102,16 +100,16 @@ internal class PitstopSubscriber : RaceEventSubscriber
 
         currentPitstop = new PitstopPostDto()
         {
-            stintId = 1, // TODO: get stint id from somewhere
-            roadEnterTime = this.roadEnterTime ?? snapshot.SessionTime,
-            serviceStartTime = snapshot.SessionTime,
-            fuelStartAmount = snapshot.FuelLevel,
-            requiredRepairTime = snapshot.PitRepairLeft,
-            optionalRepairTime = snapshot.PitOptRepairLeft,
-            leftFrontTireChange = snapshot.dpLFTireChange > 0,
-            rightFrontTireChange = snapshot.dpRFTireChange > 0,
-            leftRearTireChange = snapshot.dpLRTireChange > 0,
-            rightRearTireChange = snapshot.dpRRTireChange > 0,
+            StintId = 1, // TODO: get stint id from somewhere
+            RoadEnterTime = this.roadEnterTime ?? snapshot.SessionTime,
+            ServiceStartTime = snapshot.SessionTime,
+            FuelStartAmount = snapshot.FuelLevel,
+            RequiredRepairTime = snapshot.PitRepairLeft,
+            OptionalRepairTime = snapshot.PitOptRepairLeft,
+            LeftFrontTireChange = snapshot.dpLFTireChange > 0,
+            RightFrontTireChange = snapshot.dpRFTireChange > 0,
+            LeftRearTireChange = snapshot.dpLRTireChange > 0,
+            RightRearTireChange = snapshot.dpRRTireChange > 0,
         };
 
         // TODO: send currentPitstop to API

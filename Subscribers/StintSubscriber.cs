@@ -67,16 +67,16 @@ internal class StintSubscriber : RaceEventSubscriber
     {
         currentStint = new StintPostDto ()
         {
-            sessionId = snapshot.SessionInfo.WeekendInfo.SubSessionID,
-            driverName = GetDriverName(snapshot.SessionInfo, snapshot.PlayerCarIdx),
-            startTime = snapshot.SessionTime,
-            startPosition = snapshot.PlayerCarClassPosition,
-            startIncidents = snapshot.PlayerCarMyIncidentCount,
-            startFuel = snapshot.FuelLevel,
-            trackTemp = snapshot.TrackTempCrew,
-            trackWetness = snapshot.TrackWetness,
-            skyCover = snapshot.Skies,
-            precipitation = snapshot.Precipitation,
+            SessionId = snapshot.SessionInfo.WeekendInfo.SubSessionID,
+            DriverName = GetDriverName(snapshot.SessionInfo, snapshot.PlayerCarIdx),
+            StartTime = snapshot.SessionTime,
+            StartPosition = snapshot.PlayerCarClassPosition,
+            StartIncidents = snapshot.PlayerCarMyIncidentCount,
+            StartFuel = snapshot.FuelLevel,
+            TrackTemp = snapshot.TrackTempCrew,
+            TrackWetness = snapshot.TrackWetness,
+            SkyCover = snapshot.Skies,
+            Precipitation = snapshot.Precipitation,
         };
         Console.WriteLine($"Creating stint: {currentStint}");
         // TODO: Post stint to API
@@ -89,13 +89,13 @@ internal class StintSubscriber : RaceEventSubscriber
             return;
         }
             
-        StintPatchDto stintUpdate = new StintPatchDto()
+        var stintUpdate = new StintPatchDto()
         {
-            endTime = snapshot.SessionTime,
-            endPosition = snapshot.PlayerCarClassPosition,
-            endIncidents = snapshot.PlayerCarMyIncidentCount,
-            endFuel = snapshot.FuelLevel,
-            isComplete = completed,
+            EndTime = snapshot.SessionTime,
+            EndPosition = snapshot.PlayerCarClassPosition,
+            EndIncidents = snapshot.PlayerCarMyIncidentCount,
+            EndFuel = snapshot.FuelLevel,
+            IsComplete = completed,
         };
         Console.WriteLine($"Updating stint: {stintUpdate}");
         // TODO: Patch stint to API
