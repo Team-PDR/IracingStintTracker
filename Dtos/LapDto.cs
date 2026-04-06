@@ -14,6 +14,6 @@ public record LapPostDto
     public required int position { get; init; }
     [JsonPropertyName("incidents")]
     public required int incidents { get; init; }
-    [JsonPropertyName("fuel_used")]
-    public required float fuelUsed { get; init; }
+    [JsonPropertyName("start_fuel")]
+    public required float startFuel { get; init; }
 }

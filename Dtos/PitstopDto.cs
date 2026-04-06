@@ -29,7 +29,7 @@ public record PitstopPostDto
 public record PitstopPatchDto
 {
     [JsonPropertyName("road_exit_time")]
-    public required float roadExitTime { get; init; }
+    public required float? roadExitTime { get; set; }
     [JsonPropertyName("service_end_time")]
     public required float serviceEndTime { get; init; }
     [JsonPropertyName("fuel_end_amount")]
