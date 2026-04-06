@@ -18,7 +18,7 @@ internal class LapSubscriber : RaceEventSubscriber
 
     private void OnLapCompleted(TelemetrySnapshot snapshot)
     {
-        LapPostDto lap = new LapPostDto()
+        var lap = new LapPostDto()
         {
             stintId = 1, // TODO: Get stintId from somewhere
             lapNumber = snapshot.LapCompleted,
