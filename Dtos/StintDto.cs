@@ -4,10 +4,6 @@ namespace IracingStintTracker.Dtos;
 
 public record StintPostDto
 {
-    [JsonPropertyName("session_id")]
-    public required int SessionId { get; init; }
-    [JsonPropertyName("stint_number")]
-    public required int StintNumber { get; init; }
     [JsonPropertyName("driver_name")]
     public required string DriverName { get; init; }
 
@@ -50,6 +46,8 @@ public record StintResponseDto
     public required int StintId { get; init; }
     [JsonPropertyName("session_id")]
     public required int SessionId { get; init; }
+    [JsonPropertyName("car_id")]
+    public required int CarId { get; init; }
     [JsonPropertyName("laps")]
     public required List<LapResponseDto> Laps { get; init; } = new();
 
@@ -78,4 +76,8 @@ public record StintResponseDto
     public int? EndPosition { get; init; }
     [JsonPropertyName("duration")]
     public float? Duration { get; init; }
+    [JsonPropertyName("end_fuel")]
+    public float? EndFuel { get; init; }
+    [JsonPropertyName("incidents")]
+    public int? Incidents { get; init; }
 }

@@ -1,4 +1,6 @@
 ﻿using IracingStintTracker.Dtos;
+using System.Collections.Concurrent;
+using System.Threading.Channels;
 
 namespace IracingStintTracker.Subscribers;
 
@@ -8,7 +10,7 @@ internal class PitstopSubscriber : RaceEventSubscriber
     private double? roadEnterTime = null;
     private double? serviceEndTime = null;
     private float? fuelEndAmount = null;
-    public PitstopSubscriber(TelemetryManager manager) : base(manager)
+    public PitstopSubscriber(TelemetryManager manager, Channel<object> channel) : base(manager, channel)
     {
         this.manager.RaceStarted += OnRaceStarted;
         this.manager.RaceFinished += OnRaceFinished;
@@ -61,8 +63,6 @@ internal class PitstopSubscriber : RaceEventSubscriber
         {
             SubscribeToCarEvents();
         }
-
-        // TODO: get stint id
     }
 
     private void OnCarExited()
@@ -91,7 +91,7 @@ internal class PitstopSubscriber : RaceEventSubscriber
             FuelEndAmount = this.fuelEndAmount!.Value,
         };
 
-        // TODO: send currentPitstopPastch to API
+        apiChannel.Writer.WriteAsync(pitstop);
         ResetState();
         Console.WriteLine($"Pitstop update: {pitstop}");
     }
@@ -101,7 +101,6 @@ internal class PitstopSubscriber : RaceEventSubscriber
 
         currentPitstop = new PitstopPostDto()
         {
-            StintId = 1, // TODO: get stint id from somewhere
             RoadEnterTime = this.roadEnterTime ?? snapshot.SessionTime,
             ServiceStartTime = snapshot.SessionTime,
             FuelStartAmount = snapshot.FuelLevel,
@@ -113,7 +112,7 @@ internal class PitstopSubscriber : RaceEventSubscriber
             RightRearTireChange = snapshot.dpRRTireChange > 0,
         };
 
-        // TODO: send currentPitstop to API
+        apiChannel.Writer.WriteAsync(currentPitstop);
         Console.WriteLine($"New pitstop: {currentPitstop}");
     }
 
@@ -124,11 +123,8 @@ internal class PitstopSubscriber : RaceEventSubscriber
             return;
         }
 
-
         serviceEndTime = snapshot.SessionTime;
         fuelEndAmount = snapshot.FuelLevel;
-    
-
 
         Console.WriteLine($"service end time: {serviceEndTime}, fuel end level: {fuelEndAmount}");
     }

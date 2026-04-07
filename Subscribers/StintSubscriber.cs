@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using IracingStintTracker.Dtos;
+﻿using IracingStintTracker.Dtos;
 using IRSDKSharper;
+using System.Threading.Channels;
 
 namespace IracingStintTracker.Subscribers;
 internal class StintSubscriber : RaceEventSubscriber
 {
-
+    private bool raceFinished = false;
     private StintPostDto? currentStint = null;
-    public StintSubscriber(TelemetryManager manager) : base(manager)
+    public StintSubscriber(TelemetryManager manager, Channel<object> channel) : base(manager, channel)
     {
         this.manager.RaceStarted += OnRaceStarted;
         this.manager.RaceFinished += OnRaceFinished;
@@ -29,7 +27,6 @@ internal class StintSubscriber : RaceEventSubscriber
     {
         base.UnsubscribeFromCarEvents();
         manager.UserStartedRace -= OnUserStartedRace;
-        manager.LapCompleted -= OnLapCompleted;
         manager.PitBoxEntered -= OnPitBoxEntered;
         manager.PitBoxExited -= OnPitBoxExited;
 
@@ -51,7 +48,9 @@ internal class StintSubscriber : RaceEventSubscriber
             UnsubscribeFromCarEvents();
         }
 
-        if (currentStint != null) 
+        raceFinished = true;
+
+        if (currentStint != null)
         {
             EndStint(snapshot);
         }
@@ -65,10 +64,8 @@ internal class StintSubscriber : RaceEventSubscriber
 
     private void CreateStint(TelemetrySnapshot snapshot) 
     {
-        currentStint = new StintPostDto ()
+        currentStint = new StintPostDto()
         {
-            SessionId = snapshot.SessionInfo.WeekendInfo.SubSessionID,
-            StintNumber = 1, // TODO: get stint number
             DriverName = GetDriverName(snapshot.SessionInfo, snapshot.PlayerCarIdx),
             StartTime = snapshot.SessionTime,
             StartPosition = snapshot.PlayerCarClassPosition,
@@ -78,9 +75,10 @@ internal class StintSubscriber : RaceEventSubscriber
             TrackWetness = snapshot.TrackWetness,
             SkyCover = snapshot.Skies,
             Precipitation = snapshot.Precipitation,
-        };
+        }; 
         Console.WriteLine($"Creating stint: {currentStint}");
-        // TODO: Post stint to API
+
+        apiChannel.Writer.WriteAsync(currentStint);
     }
     private void UpdateStint(TelemetrySnapshot snapshot, bool completed) 
     {   
@@ -99,7 +97,7 @@ internal class StintSubscriber : RaceEventSubscriber
             IsComplete = completed,
         };
         Console.WriteLine($"Updating stint: {stintUpdate}");
-        // TODO: Patch stint to API
+        apiChannel.Writer.WriteAsync(stintUpdate);
     }
     private void EndStint(TelemetrySnapshot snapshot) 
     {
@@ -111,12 +109,32 @@ internal class StintSubscriber : RaceEventSubscriber
     }
 
     private void OnUserStartedRace(TelemetrySnapshot snapshot) 
-    { 
+    {
+        Console.WriteLine("User started the race. Creating a new stint");
         CreateStint(snapshot);
     }
     private void OnLapCompleted(TelemetrySnapshot snapshot) 
     {
-        UpdateStint(snapshot, false);
+        if (!raceFinished)
+        {
+            UpdateStint(snapshot, false);
+        }
+        
+
+        var lap = new LapPostDto()
+        {
+            LapNumber = snapshot.LapCompleted,
+            LapTime = snapshot.LapLastLapTime,
+            EndTime = snapshot.SessionTime,
+        };
+
+        Console.WriteLine($"Created Lap: {lap}");
+        apiChannel.Writer.WriteAsync(lap);
+
+        if (raceFinished)
+        {
+            manager.LapCompleted -= OnLapCompleted;
+        }
     }
     private void OnPitBoxEntered(TelemetrySnapshot snapshot) 
     { 

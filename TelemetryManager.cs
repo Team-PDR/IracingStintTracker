@@ -1,5 +1,6 @@
 ﻿using IRSDKSharper;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace IracingStintTracker;
 public class TelemetryManager
@@ -56,9 +57,10 @@ public class TelemetryManager
         irsdk.OnTelemetryData += OnTelemetryData;
         irsdk.OnDebugLog += OnDebugLog;
 
+        Console.WriteLine("IRSDK Started");
+
         irsdk.Start();
     }
-
     private void OnStopped()
     {
 
@@ -227,8 +229,6 @@ public class TelemetryManager
 
     private void OnTelemetryData()
     {
-        int tempTick = irsdk.Data.GetInt("SessionTick");
-        Console.WriteLine($"{tempTick}");
         IRacingSdkSessionInfo? sessionInfo = irsdk.Data.SessionInfo;
         if (sessionInfo?.SessionInfo == null)
         {

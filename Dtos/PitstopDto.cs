@@ -4,8 +4,6 @@ namespace IracingStintTracker.Dtos;
 
 public record PitstopPostDto
 {
-    [JsonPropertyName("stint_id")]
-    public required int StintId { get; init; }
     [JsonPropertyName("road_enter_time")]
     public required double RoadEnterTime { get; init; }
     [JsonPropertyName("service_start_time")]
@@ -40,9 +38,6 @@ public record PitstopResponseDto
 {
     [JsonPropertyName("id")]
     public required int PitstopId { get; init; }
-
-    [JsonPropertyName("stint_id")]
-    public required int StintId { get; init; }
 
     [JsonPropertyName("road_enter_time")]
     public required double RoadEnterTime { get; init; }

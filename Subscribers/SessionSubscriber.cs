@@ -1,11 +1,12 @@
 ﻿using IracingStintTracker.Dtos;
 using IRSDKSharper;
+using System.Threading.Channels;
 
 namespace IracingStintTracker.Subscribers;
 
 internal class SessionSubscriber : RaceEventSubscriber
 {
-    public SessionSubscriber(TelemetryManager manager) : base(manager) 
+    public SessionSubscriber(TelemetryManager manager, Channel<object> channel) : base(manager, channel) 
     {
         this.manager.RaceStarted += OnRaceStarted;
     }
@@ -45,16 +46,17 @@ internal class SessionSubscriber : RaceEventSubscriber
         var session = new SessionPostDto
         {
             SessionId = weekendInfo.SubSessionID,
+            CarId = playerCarId,
             TrackName = weekendInfo.TrackDisplayName,
             CarClass = carClassName,
-            Car = carName,
+            CarName = carName,
             RaceDuration = GetRaceDuration(snapshot.SessionInfo, snapshot.SessionNum),
             SessionDate = DateOnly.FromDateTime(DateTime.Now)
         };
 
         Console.WriteLine($"New session created: {session}");
 
-        // TODO: post session to API
+        apiChannel.Writer.WriteAsync( session );
     }
 }
 
