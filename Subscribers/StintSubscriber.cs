@@ -126,6 +126,7 @@ internal class StintSubscriber : RaceEventSubscriber
             LapNumber = snapshot.LapCompleted,
             LapTime = snapshot.LapLastLapTime,
             EndTime = snapshot.SessionTime,
+            EndFuel = snapshot.FuelLevel,
         };
 
         Console.WriteLine($"Created Lap: {lap}");
