@@ -56,10 +56,22 @@ public class TelemetryManager
         irsdk.OnDisconnected += OnDisconnected;
         irsdk.OnTelemetryData += OnTelemetryData;
         irsdk.OnDebugLog += OnDebugLog;
+    }
 
-        Console.WriteLine("IRSDK Started");
+    public void Start()
+    {
+        if (!irsdk.IsStarted)
+        {
+            irsdk.Start();
+        }
+    }
 
-        irsdk.Start();
+    public void Stop()
+    {
+        if (irsdk.IsStarted)
+        {
+            irsdk.Stop();
+        }
     }
     private void OnStopped()
     {

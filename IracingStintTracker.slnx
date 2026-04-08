@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../StintTrackerGui/StintTrackerGui.csproj" Id="34cea939-bf35-48fb-8c51-f12e3c52015c" />
   <Project Path="IracingStintTracker.csproj" />
 </Solution>
