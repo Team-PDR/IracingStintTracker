@@ -1,7 +1,7 @@
 ﻿using IRSDKSharper;
 using System.Diagnostics;
 
-namespace StintTrackerCore;
+namespace StintTracker.Core;
 public class TelemetryManager
 {
 
@@ -270,7 +270,7 @@ public class TelemetryManager
 
         if (sessionId != sessionInfo.WeekendInfo.SubSessionID)
         {
-            reset();
+            Reset();
         }
 
         if (!IsRaceSession(sessionInfo))

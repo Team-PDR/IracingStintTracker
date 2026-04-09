@@ -1,8 +1,9 @@
-﻿using StintTrackerCore.Dtos;
-using IRSDKSharper;
+﻿using IRSDKSharper;
 using System.Threading.Channels;
+using StintTracker.Core.Dtos;
+using StintTracker.Core;
 
-namespace StintTrackerCore.Subscribers;
+namespace StintTracker.Core.Subscribers;
 internal class StintSubscriber : RaceEventSubscriber
 {
     private bool raceFinished = false;

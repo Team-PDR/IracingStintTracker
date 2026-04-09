@@ -1,8 +1,10 @@
-using StintTrackerCore.Dtos;
+using StintTracker.Core.Dtos;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Channels;
 
-namespace StintTrackerCore.Api;
+
+namespace StintTracker.Core.API;
 
 public class ApiClient
 {
