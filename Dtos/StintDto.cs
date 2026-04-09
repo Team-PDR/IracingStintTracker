@@ -2,7 +2,7 @@
 
 namespace IracingStintTracker.Dtos;
 
-public record StintPostDto
+public record StintPostDto : ITrackerDto
 {
     [JsonPropertyName("driver_name")]
     public required string DriverName { get; init; }
@@ -25,7 +25,7 @@ public record StintPostDto
     public required float Precipitation { get; init; }
 }
 
-public record StintPatchDto
+public record StintPatchDto : ITrackerDto
 {
     [JsonPropertyName("end_time")]
     public double? EndTime { get; init; }
@@ -40,7 +40,7 @@ public record StintPatchDto
 
 }
 
-public record StintResponseDto
+public record StintResponseDto : ITrackerDto
 {
     [JsonPropertyName("id")]
     public required int StintId { get; init; }

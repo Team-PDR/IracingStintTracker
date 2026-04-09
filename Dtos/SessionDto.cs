@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace IracingStintTracker.Dtos;
 
-public record SessionPostDto
+public record SessionPostDto : ITrackerDto
 {
     [JsonPropertyName("id")]
     public required int SessionId { get; init; }
@@ -20,7 +20,7 @@ public record SessionPostDto
     public required DateOnly SessionDate { get; init; }
 }
 
-public record SessionResponseDto 
+public record SessionResponseDto : ITrackerDto
 {
     [JsonPropertyName("car_id")]
     public required int CarId { get; init; }

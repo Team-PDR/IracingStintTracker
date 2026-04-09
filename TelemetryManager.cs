@@ -1,6 +1,5 @@
 ﻿using IRSDKSharper;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace IracingStintTracker;
 public class TelemetryManager
@@ -34,6 +33,8 @@ public class TelemetryManager
     IRacingSdkDatum? carTowingDatum = null;
     IRacingSdkDatum? lapCompletedDatum = null;
 
+    public event Action<bool>? SdkConnectionChange;
+
     public event Action<TelemetrySnapshot>? RaceStarted;
     public event Action<TelemetrySnapshot>? RaceFinished;
     public event Action<TelemetrySnapshot>? PitRoadEntered;
@@ -57,6 +58,8 @@ public class TelemetryManager
         irsdk.OnTelemetryData += OnTelemetryData;
         irsdk.OnDebugLog += OnDebugLog;
     }
+
+
 
     public void Start()
     {
@@ -112,11 +115,13 @@ public class TelemetryManager
 
     private void OnConnected()
     {
+        SdkConnectionChange?.Invoke(true);
         Console.WriteLine("Connected!");
     }
 
     private void OnDisconnected()
     {
+        SdkConnectionChange?.Invoke(false);
         Console.WriteLine("Disconnected!");
     }
 

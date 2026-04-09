@@ -7,7 +7,7 @@ internal class StintSubscriber : RaceEventSubscriber
 {
     private bool raceFinished = false;
     private StintPostDto? currentStint = null;
-    public StintSubscriber(TelemetryManager manager, Channel<object> channel) : base(manager, channel)
+    public StintSubscriber(TelemetryManager manager, Channel<ITrackerDto> channel) : base(manager, channel)
     {
         this.manager.RaceStarted += OnRaceStarted;
         this.manager.RaceFinished += OnRaceFinished;

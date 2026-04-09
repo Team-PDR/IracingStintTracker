@@ -6,7 +6,8 @@ namespace IracingStintTracker.Api;
 
 public class ApiClient
 {
-	Channel<object> channel;
+    public Action<bool>? HealthChecked;
+	private Channel<ITrackerDto> channel;
 	private int? sessionId = null;
 	private int? carId = null;
 	private int? stintId = null;
@@ -16,10 +17,27 @@ public class ApiClient
 		BaseAddress = new Uri("http://127.0.0.1:8000")
 	};
 
-	public ApiClient(Channel<object> channel)
+	public ApiClient(Channel<ITrackerDto> channel)
 	{
 		this.channel = channel;
+        _ = CheckHealthAsync();
 	}
+
+    private async Task CheckHealthAsync()
+    {
+        bool isHealthy;
+        try
+        {
+            var response = await client.GetAsync("/health");
+            isHealthy = response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            isHealthy = false;
+        }
+
+        HealthChecked?.Invoke(isHealthy);
+    }
 
 	private async Task<bool> CreateSessionAsync(SessionPostDto session) 
 	{
@@ -144,7 +162,7 @@ public class ApiClient
 
         return response.IsSuccessStatusCode;
 	}
-	private async Task SendToApi(object dto)
+	private async Task SendToApi(ITrackerDto dto)
 	{
         try
         {
@@ -179,9 +197,22 @@ public class ApiClient
 
 	public async Task Run(CancellationToken token)
 	{
-		await foreach(var dto in channel.Reader.ReadAllAsync(token))
-		{
-			await SendToApi(dto);
-		}
+        try
+        {
+            await foreach (var dto in channel.Reader.ReadAllAsync(token))
+            {
+                await SendToApi(dto);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("API Client stopped.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"API client error: {ex.Message}");
+        }
+		
+
 	}
 }

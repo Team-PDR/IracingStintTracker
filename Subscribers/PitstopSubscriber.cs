@@ -1,5 +1,4 @@
 ﻿using IracingStintTracker.Dtos;
-using System.Collections.Concurrent;
 using System.Threading.Channels;
 
 namespace IracingStintTracker.Subscribers;
@@ -10,7 +9,7 @@ internal class PitstopSubscriber : RaceEventSubscriber
     private double? roadEnterTime = null;
     private double? serviceEndTime = null;
     private float? fuelEndAmount = null;
-    public PitstopSubscriber(TelemetryManager manager, Channel<object> channel) : base(manager, channel)
+    public PitstopSubscriber(TelemetryManager manager, Channel<ITrackerDto> channel) : base(manager, channel)
     {
         this.manager.RaceStarted += OnRaceStarted;
         this.manager.RaceFinished += OnRaceFinished;

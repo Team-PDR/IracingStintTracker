@@ -1,4 +1,5 @@
-﻿using System.Threading.Channels;
+﻿using IracingStintTracker.Dtos;
+using System.Threading.Channels;
 
 namespace IracingStintTracker.Subscribers;
 
@@ -6,9 +7,9 @@ public abstract class RaceEventSubscriber
 {
 	protected readonly TelemetryManager manager;
 	protected bool subscribed = false;
-	protected Channel<object> apiChannel;
+	protected Channel<ITrackerDto> apiChannel;
 	
-	protected RaceEventSubscriber(TelemetryManager manager, Channel<object> channel)
+	protected RaceEventSubscriber(TelemetryManager manager, Channel<ITrackerDto> channel)
 	{
 		this.manager = manager;
         apiChannel = channel;

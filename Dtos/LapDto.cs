@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace IracingStintTracker.Dtos;
 
-public record LapPostDto
+public record LapPostDto : ITrackerDto
 {
     [JsonPropertyName("number")]
     public required int LapNumber { get; init; }
@@ -14,7 +14,7 @@ public record LapPostDto
     public required float EndFuel { get; init; }
 }
 
-public record LapResponseDto
+public record LapResponseDto : ITrackerDto
 {
     [JsonPropertyName("id")]
     public required int LapId { get; init; }

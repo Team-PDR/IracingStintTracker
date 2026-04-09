@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace IracingStintTracker.Dtos;
 
-public record PitstopPostDto
+public record PitstopPostDto : ITrackerDto
 {
     [JsonPropertyName("road_enter_time")]
     public required double RoadEnterTime { get; init; }
@@ -24,7 +24,7 @@ public record PitstopPostDto
     public required bool RightRearTireChange { get; init; }
 }
 
-public record PitstopPatchDto
+public record PitstopPatchDto : ITrackerDto
 {
     [JsonPropertyName("road_exit_time")]
     public required double RoadExitTime { get; set; }
@@ -34,7 +34,7 @@ public record PitstopPatchDto
     public required float FuelEndAmount { get; init; }
 }
 
-public record PitstopResponseDto
+public record PitstopResponseDto : ITrackerDto
 {
     [JsonPropertyName("id")]
     public required int PitstopId { get; init; }

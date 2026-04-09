@@ -6,7 +6,7 @@ namespace IracingStintTracker.Subscribers;
 
 internal class SessionSubscriber : RaceEventSubscriber
 {
-    public SessionSubscriber(TelemetryManager manager, Channel<object> channel) : base(manager, channel) 
+    public SessionSubscriber(TelemetryManager manager, Channel<ITrackerDto> channel) : base(manager, channel) 
     {
         this.manager.RaceStarted += OnRaceStarted;
     }
