@@ -1,7 +1,7 @@
-﻿using IracingStintTracker;
-using IracingStintTracker.Api;
-using IracingStintTracker.Dtos;
-using IracingStintTracker.Subscribers;
+﻿using StintTrackerCore;
+using StintTrackerCore.Api;
+using StintTrackerCore.Dtos;
+using StintTrackerCore.Subscribers;
 using System.Text;
 using System.Threading.Channels;
 

@@ -1,7 +1,7 @@
 ﻿using IRSDKSharper;
 using System.Diagnostics;
 
-namespace IracingStintTracker;
+namespace StintTrackerCore;
 public class TelemetryManager
 {
 
@@ -137,7 +137,7 @@ public class TelemetryManager
         Debug.WriteLine(message);
     }
 
-    private void reset()
+    private void Reset()
     {
         shouldRestart = true;
         irsdk.Stop();

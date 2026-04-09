@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace IracingStintTracker.Dtos;
+namespace StintTrackerCore.Dtos;
 
 public record LapPostDto : ITrackerDto
 {

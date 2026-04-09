@@ -1,8 +1,8 @@
-﻿using IracingStintTracker.Dtos;
+﻿using StintTrackerCore.Dtos;
 using IRSDKSharper;
 using System.Threading.Channels;
 
-namespace IracingStintTracker.Subscribers;
+namespace StintTrackerCore.Subscribers;
 
 internal class SessionSubscriber : RaceEventSubscriber
 {

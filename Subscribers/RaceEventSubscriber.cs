@@ -1,7 +1,7 @@
-﻿using IracingStintTracker.Dtos;
+﻿using StintTrackerCore.Dtos;
 using System.Threading.Channels;
 
-namespace IracingStintTracker.Subscribers;
+namespace StintTrackerCore.Subscribers;
 
 public abstract class RaceEventSubscriber
 {
