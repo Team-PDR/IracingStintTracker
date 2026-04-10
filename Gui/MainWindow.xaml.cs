@@ -28,7 +28,11 @@ public partial class MainWindow : Window
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
+<<<<<<< HEAD
         string apiUrl = config["TestApiBaseUrl"];
+=======
+        string apiUrl = config["ApiBaseUrl"];
+>>>>>>> dist
         string apiKey = config["ApiKey"];
 
         tracker = new StintTrackerService();
