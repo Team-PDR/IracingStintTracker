@@ -2,6 +2,7 @@
 using System.Diagnostics;
 
 namespace StintTracker.Core;
+
 public class TelemetryManager
 {
 
@@ -280,7 +281,7 @@ public class TelemetryManager
 
         var snapshot = GetSnapshot(sessionInfo);
 
-        
+
         bool isCarOnTrack = irsdk.Data.GetBool(onTrackDatum);
         float towTime = irsdk.Data.GetFloat(carTowingDatum);
         bool isUserDriving = isCarOnTrack || (towTime > 0.0 && wasUserDriving);
@@ -307,12 +308,12 @@ public class TelemetryManager
 
         if (raceStarted)
         {
-            
+
             bool isOnPitRoad = irsdk.Data.GetBool(onPitRoadDatum);
-            bool isInPitBox = irsdk.Data.GetBool(pitActiveDatum);  
+            bool isInPitBox = irsdk.Data.GetBool(pitActiveDatum);
             int lapCompleted = irsdk.Data.GetInt(lapCompletedDatum);
 
-            
+
 
             if (isUserDriving)
             {
@@ -400,8 +401,8 @@ public record TelemetrySnapshot
     public double SessionTime { get; init; }
     public int PlayerCarClassPosition { get; init; }
     public int PlayerCarMyIncidentCount { get; init; }
-       
-        
+
+
     public float TrackTempCrew { get; init; }
     public int TrackWetness { get; init; }
     public int Skies { get; init; }

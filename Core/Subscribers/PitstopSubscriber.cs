@@ -1,5 +1,4 @@
 ﻿using StintTracker.Core.Dtos;
-using StintTracker.Core;
 using System.Threading.Channels;
 
 namespace StintTracker.Core.Subscribers;
@@ -52,8 +51,8 @@ internal class PitstopSubscriber : RaceEventSubscriber
     protected override void OnRaceFinished(TelemetrySnapshot snapshot)
     {
         if (subscribed)
-        { 
-            UnsubscribeFromCarEvents(); 
+        {
+            UnsubscribeFromCarEvents();
         }
     }
 

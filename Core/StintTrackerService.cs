@@ -1,6 +1,6 @@
-﻿using StintTracker.Core.Dtos;
-using StintTracker.Core;
+﻿using StintTracker.Core;
 using StintTracker.Core.API;
+using StintTracker.Core.Dtos;
 using StintTracker.Core.Subscribers;
 using System.Text;
 using System.Threading.Channels;
@@ -16,11 +16,11 @@ public class StintTrackerService
     public event Action<TrackerStatus>? OnTrackerStatusChanged;
     public event Action<bool>? OnApiConnectionChanged;
 
-    public void Start()
+    public void Start(string apiUrl)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-        var apiClient = new ApiClient(channel);
+        var apiClient = new ApiClient(channel, apiUrl);
 
         var sessionSubscriber = new SessionSubscriber(manager, channel);
         var stintSubscriber = new StintSubscriber(manager, channel);
@@ -72,7 +72,7 @@ public class StintTrackerService
 
         if (apiTask != null)
         {
-           await apiTask;
+            await apiTask;
         }
 
         Console.WriteLine("Shutting down");

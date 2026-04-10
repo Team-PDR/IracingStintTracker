@@ -9,21 +9,20 @@ namespace StintTracker.Core.API;
 public class ApiClient
 {
     public Action<bool>? HealthChecked;
-	private Channel<ITrackerDto> channel;
-	private int? sessionId = null;
-	private int? carId = null;
-	private int? stintId = null;
+    private Channel<ITrackerDto> channel;
+    private readonly HttpClient client;
+    private int? sessionId = null;
+    private int? carId = null;
+    private int? stintId = null;
 
-	private static readonly HttpClient client = new HttpClient() 
-	{ 
-		BaseAddress = new Uri("http://127.0.0.1:8000")
-	};
 
-	public ApiClient(Channel<ITrackerDto> channel)
-	{
-		this.channel = channel;
+
+    public ApiClient(Channel<ITrackerDto> channel, string baseUrl)
+    {
+        this.channel = channel;
+        client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
         _ = CheckHealthAsync();
-	}
+    }
 
     private async Task CheckHealthAsync()
     {
@@ -41,34 +40,34 @@ public class ApiClient
         HealthChecked?.Invoke(isHealthy);
     }
 
-	private async Task<bool> CreateSessionAsync(SessionPostDto session) 
-	{
+    private async Task<bool> CreateSessionAsync(SessionPostDto session)
+    {
         sessionId = session.SessionId;
         carId = session.CarId;
         stintId = null;
 
-		var response = await client.PostAsJsonAsync("/sessions", session);
-		
-		if (response.IsSuccessStatusCode)
-		{
-			var newSession = await response.Content.ReadFromJsonAsync<SessionResponseDto>();
-			Console.WriteLine($"sessionId updated: {sessionId}, carId updated: {carId}");
+        var response = await client.PostAsJsonAsync("/sessions", session);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var newSession = await response.Content.ReadFromJsonAsync<SessionResponseDto>();
+            Console.WriteLine($"sessionId updated: {sessionId}, carId updated: {carId}");
         }
 
-		return response.IsSuccessStatusCode;
+        return response.IsSuccessStatusCode;
 
-	}
-	private async Task<bool> CreateStintAsync(StintPostDto stint) 
-	{
+    }
+    private async Task<bool> CreateStintAsync(StintPostDto stint)
+    {
         if (sessionId == null || carId == null)
         {
             Console.WriteLine("Session or car not initialized");
             return false;
         }
-		
+
 
         string url = $"/sessions/{sessionId}/cars/{carId}/stints";
-		var response = await client.PostAsJsonAsync(url, stint);
+        var response = await client.PostAsJsonAsync(url, stint);
 
         if (response.IsSuccessStatusCode)
         {
@@ -76,15 +75,15 @@ public class ApiClient
             stintId = newStint!.StintId;
             Console.WriteLine($"stintId updated: {stintId}");
         }
-		else
-		{
+        else
+        {
             Console.WriteLine($"Request failed: {response.StatusCode}");
         }
 
         return response.IsSuccessStatusCode;
     }
-	private async Task<bool> UpdateStintAsync(StintPatchDto stint) 
-	{
+    private async Task<bool> UpdateStintAsync(StintPatchDto stint)
+    {
         if (stintId == null)
         {
             Console.WriteLine("No active stint - skipping update");
@@ -92,19 +91,19 @@ public class ApiClient
         }
 
         string url = $"/sessions/{sessionId}/cars/{carId}/stints/{stintId}";
-		HttpResponseMessage response = await client.PatchAsJsonAsync(url, stint);
+        HttpResponseMessage response = await client.PatchAsJsonAsync(url, stint);
 
-		if (response.IsSuccessStatusCode)
-		{
-			Console.WriteLine($"Stint with id {stintId} successfully updated");
-		}
-		else
-		{
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"Stint with id {stintId} successfully updated");
+        }
+        else
+        {
             Console.WriteLine($"Request failed: {response.StatusCode}");
         }
 
-		return response.IsSuccessStatusCode;
-	}
+        return response.IsSuccessStatusCode;
+    }
 
     private async Task<bool> CreateLapAsync(LapPostDto lap)
     {
@@ -120,16 +119,16 @@ public class ApiClient
         {
             Console.WriteLine("Lap successfully created");
         }
-		else
-		{
+        else
+        {
             Console.WriteLine($"Request failed: {response.StatusCode}");
         }
 
         return response.IsSuccessStatusCode;
     }
 
-    private async Task<bool> CreatePitstopAsync(PitstopPostDto pitstop) 
-	{
+    private async Task<bool> CreatePitstopAsync(PitstopPostDto pitstop)
+    {
         if (sessionId == null || carId == null)
         {
             Console.WriteLine("Session or car not initialized");
@@ -137,7 +136,7 @@ public class ApiClient
         }
 
         string url = $"/sessions/{sessionId}/cars/{carId}/pitstops";
-		var response = await client.PostAsJsonAsync(url, pitstop);
+        var response = await client.PostAsJsonAsync(url, pitstop);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -145,9 +144,9 @@ public class ApiClient
         }
 
         return response.IsSuccessStatusCode;
-	}
-	private async Task<bool> UpdatePitstopAsync(PitstopPatchDto pitstop)
-	{
+    }
+    private async Task<bool> UpdatePitstopAsync(PitstopPatchDto pitstop)
+    {
         if (sessionId == null || carId == null)
         {
             Console.WriteLine("Session or car not initialized");
@@ -155,7 +154,7 @@ public class ApiClient
         }
 
         string url = $"/sessions/{sessionId}/cars/{carId}/pitstops";
-		var response = await client.PatchAsJsonAsync(url, pitstop);
+        var response = await client.PatchAsJsonAsync(url, pitstop);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -163,9 +162,9 @@ public class ApiClient
         }
 
         return response.IsSuccessStatusCode;
-	}
-	private async Task SendToApi(ITrackerDto dto)
-	{
+    }
+    private async Task SendToApi(ITrackerDto dto)
+    {
         try
         {
             switch (dto)
@@ -197,8 +196,8 @@ public class ApiClient
 
     }
 
-	public async Task Run(CancellationToken token)
-	{
+    public async Task Run(CancellationToken token)
+    {
         try
         {
             await foreach (var dto in channel.Reader.ReadAllAsync(token))
@@ -214,7 +213,7 @@ public class ApiClient
         {
             Console.WriteLine($"API client error: {ex.Message}");
         }
-		
 
-	}
+
+    }
 }

@@ -1,14 +1,12 @@
-﻿using StintTracker.Core.Dtos;
-using IRSDKSharper;
-using System.Threading.Channels;
+﻿using IRSDKSharper;
 using StintTracker.Core.Dtos;
-using StintTracker.Core;
+using System.Threading.Channels;
 
 namespace StintTracker.Core.Subscribers;
 
 internal class SessionSubscriber : RaceEventSubscriber
 {
-    public SessionSubscriber(TelemetryManager manager, Channel<ITrackerDto> channel) : base(manager, channel) 
+    public SessionSubscriber(TelemetryManager manager, Channel<ITrackerDto> channel) : base(manager, channel)
     {
         this.manager.RaceStarted += OnRaceStarted;
     }
@@ -16,20 +14,25 @@ internal class SessionSubscriber : RaceEventSubscriber
     private int GetRaceDuration(IRacingSdkSessionInfo sessionInfo, int sessionNum)
     {
         var sessions = sessionInfo.SessionInfo.Sessions;
+        string duration = sessions[sessionNum].SessionTime;
+        Console.WriteLine($"Full time: {duration}");
 
-        string duration = sessions[sessionNum].SessionTime.Split(' ')[0];
+        duration = sessions[sessionNum].SessionTime.Split(' ')[0];
+        Console.WriteLine($"Split time: {duration}");
 
-        if (int.TryParse(duration, out int result))
+        if (double.TryParse(duration, out double result))
         {
-            return result;
+            Console.WriteLine($"Result: {result}");
+            return (int)result;
         }
         else
         {
+            Console.WriteLine($"Result: {result}");
             return 0;
         }
     }
 
-    protected override void OnRaceStarted(TelemetrySnapshot snapshot) 
+    protected override void OnRaceStarted(TelemetrySnapshot snapshot)
     {
 
         var weekendInfo = snapshot.SessionInfo.WeekendInfo;
@@ -58,7 +61,7 @@ internal class SessionSubscriber : RaceEventSubscriber
 
         Console.WriteLine($"New session created: {session}");
 
-        apiChannel.Writer.WriteAsync( session );
+        apiChannel.Writer.WriteAsync(session);
     }
 }
 

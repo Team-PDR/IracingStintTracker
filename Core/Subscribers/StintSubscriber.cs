@@ -1,9 +1,9 @@
 ﻿using IRSDKSharper;
-using System.Threading.Channels;
 using StintTracker.Core.Dtos;
-using StintTracker.Core;
+using System.Threading.Channels;
 
 namespace StintTracker.Core.Subscribers;
+
 internal class StintSubscriber : RaceEventSubscriber
 {
     private bool raceFinished = false;
@@ -21,7 +21,7 @@ internal class StintSubscriber : RaceEventSubscriber
         manager.LapCompleted += OnLapCompleted;
         manager.PitBoxEntered += OnPitBoxEntered;
         manager.PitBoxExited += OnPitBoxExited;
-        
+
     }
 
     protected override void UnsubscribeFromCarEvents()
@@ -39,7 +39,7 @@ internal class StintSubscriber : RaceEventSubscriber
         {
             SubscribeToCarEvents();
         }
-        
+
     }
 
     protected override void OnRaceFinished(TelemetrySnapshot snapshot)
@@ -63,7 +63,7 @@ internal class StintSubscriber : RaceEventSubscriber
         return driverInfo.Drivers[carId].UserName;
     }
 
-    private void CreateStint(TelemetrySnapshot snapshot) 
+    private void CreateStint(TelemetrySnapshot snapshot)
     {
         currentStint = new StintPostDto()
         {
@@ -76,19 +76,19 @@ internal class StintSubscriber : RaceEventSubscriber
             TrackWetness = snapshot.TrackWetness,
             SkyCover = snapshot.Skies,
             Precipitation = snapshot.Precipitation,
-        }; 
+        };
         Console.WriteLine($"Creating stint: {currentStint}");
 
         apiChannel.Writer.WriteAsync(currentStint);
     }
-    private void UpdateStint(TelemetrySnapshot snapshot, bool completed) 
-    {   
-        if (currentStint == null) 
+    private void UpdateStint(TelemetrySnapshot snapshot, bool completed)
+    {
+        if (currentStint == null)
         {
             Console.WriteLine("No current stint to update");
             return;
         }
-            
+
         var stintUpdate = new StintPatchDto()
         {
             EndTime = snapshot.SessionTime,
@@ -100,7 +100,7 @@ internal class StintSubscriber : RaceEventSubscriber
         Console.WriteLine($"Updating stint: {stintUpdate}");
         apiChannel.Writer.WriteAsync(stintUpdate);
     }
-    private void EndStint(TelemetrySnapshot snapshot) 
+    private void EndStint(TelemetrySnapshot snapshot)
     {
         UpdateStint(snapshot, true);
 
@@ -109,18 +109,18 @@ internal class StintSubscriber : RaceEventSubscriber
         currentStint = null;
     }
 
-    private void OnUserStartedRace(TelemetrySnapshot snapshot) 
+    private void OnUserStartedRace(TelemetrySnapshot snapshot)
     {
         Console.WriteLine("User started the race. Creating a new stint");
         CreateStint(snapshot);
     }
-    private void OnLapCompleted(TelemetrySnapshot snapshot) 
+    private void OnLapCompleted(TelemetrySnapshot snapshot)
     {
         if (!raceFinished)
         {
             UpdateStint(snapshot, false);
         }
-        
+
 
         var lap = new LapPostDto()
         {
@@ -138,11 +138,11 @@ internal class StintSubscriber : RaceEventSubscriber
             manager.LapCompleted -= OnLapCompleted;
         }
     }
-    private void OnPitBoxEntered(TelemetrySnapshot snapshot) 
-    { 
+    private void OnPitBoxEntered(TelemetrySnapshot snapshot)
+    {
         EndStint(snapshot);
     }
-    private void OnPitBoxExited(TelemetrySnapshot snapshot) 
+    private void OnPitBoxExited(TelemetrySnapshot snapshot)
     {
         CreateStint(snapshot);
     }

@@ -1,8 +1,12 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Toolkit.Uwp.Notifications;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 
 namespace StintTracker.Gui;
+
+
 public partial class MainWindow : Window
 {
     private bool isExiting = false;
@@ -13,9 +17,18 @@ public partial class MainWindow : Window
         { TrackerStatus.Running, ("Monitoring Race", Brushes.Green) },
         { TrackerStatus.Finished, ("Race Finished", Brushes.Purple) }
     };
+
+
     public MainWindow()
     {
         InitializeComponent();
+
+        var config = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
+
+        string apiUrl = config["TestApiBaseUrl"];
 
         tracker = new StintTrackerService();
 
@@ -23,7 +36,7 @@ public partial class MainWindow : Window
         tracker.OnTrackerStatusChanged += OnTrackerStatusChanged;
         tracker.OnApiConnectionChanged += OnApiStatusChanged;
 
-        tracker.Start();
+        tracker.Start(apiUrl);
     }
 
     public void OnIracingStatusChanged(bool isRunning)
@@ -77,6 +90,12 @@ public partial class MainWindow : Window
     {
         if (!isExiting)
         {
+            new ToastContentBuilder()
+                 .AddText("Stint Tracker")
+                 .AddText("Closed to tray")
+                 .SetToastDuration(ToastDuration.Short)
+                 .Show();
+
             e.Cancel = true;
             Hide();
             return;
