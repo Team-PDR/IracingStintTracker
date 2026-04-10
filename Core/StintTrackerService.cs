@@ -16,11 +16,11 @@ public class StintTrackerService
     public event Action<TrackerStatus>? OnTrackerStatusChanged;
     public event Action<bool>? OnApiConnectionChanged;
 
-    public void Start(string apiUrl)
+    public void Start(string apiUrl, string apiKey)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-        var apiClient = new ApiClient(channel, apiUrl);
+        var apiClient = new ApiClient(channel, apiUrl, apiKey);
 
         var sessionSubscriber = new SessionSubscriber(manager, channel);
         var stintSubscriber = new StintSubscriber(manager, channel);

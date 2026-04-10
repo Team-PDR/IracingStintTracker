@@ -29,6 +29,7 @@ public partial class MainWindow : Window
             .Build();
 
         string apiUrl = config["TestApiBaseUrl"];
+        string apiKey = config["ApiKey"];
 
         tracker = new StintTrackerService();
 
@@ -36,7 +37,7 @@ public partial class MainWindow : Window
         tracker.OnTrackerStatusChanged += OnTrackerStatusChanged;
         tracker.OnApiConnectionChanged += OnApiStatusChanged;
 
-        tracker.Start(apiUrl);
+        tracker.Start(apiUrl, apiKey);
     }
 
     public void OnIracingStatusChanged(bool isRunning)

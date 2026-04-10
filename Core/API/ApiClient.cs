@@ -17,10 +17,11 @@ public class ApiClient
 
 
 
-    public ApiClient(Channel<ITrackerDto> channel, string baseUrl)
+    public ApiClient(Channel<ITrackerDto> channel, string baseUrl, string apiKey)
     {
         this.channel = channel;
         client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
         _ = CheckHealthAsync();
     }
 
