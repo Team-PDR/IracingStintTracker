@@ -3,6 +3,9 @@ name: Deploy to AWS Lambda
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "api/**"
+      - ".github/workflows/deploy-lambda.yml"
 
 permissions:
   id-token: write   # This is required for OIDC authentication
@@ -29,13 +32,13 @@ jobs:
   
     - name: Clean app folder
       run: |
-        find app -type d -name "__pycache__" -exec rm -rf {} +
+        find api/app -type d -name "__pycache__" -exec rm -rf {} +
         
     - name: Prepare deployment package
       run: |
         rm -rf deploy_package deploy.zip || true
         mkdir deploy_package
-        cp -r app deploy_package/
+        cp -r api/app deploy_package/
         
     - name: Deploy Lambda Function
       uses: aws-actions/aws-lambda-deploy@v1.1.0
