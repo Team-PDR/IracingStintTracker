@@ -9,7 +9,7 @@ namespace StintTracker.Gui;
 
 public partial class MainWindow : Window
 {
-    private bool isExiting = false;
+    public bool isExiting = false;
     private readonly StintTrackerService tracker;
     private readonly Dictionary<TrackerStatus, (string Message, Brush color)> TrackerStatusMap = new(){
         { TrackerStatus.Offline, ("Waiting for iRacing", Brushes.Red) },
@@ -28,11 +28,7 @@ public partial class MainWindow : Window
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
-<<<<<<< HEAD
-        string apiUrl = config["TestApiBaseUrl"];
-=======
         string apiUrl = config["ApiBaseUrl"];
->>>>>>> dist
         string apiKey = config["ApiKey"];
 
         tracker = new StintTrackerService();
