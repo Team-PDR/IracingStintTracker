@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Repo layout
+
+Monorepo: `ingester/` is the WPF app described below (all paths in this file are relative to it), `api/` is the FastAPI backend (its own `app/` package, `requirements.txt`; deployed to AWS Lambda by `.github/workflows/deploy-lambda.yml` on pushes to `main` that touch `api/**`). Keep the C# `Core/Dtos` in sync with the backend schemas.
+
 ## What this is
 
 A Windows-only WPF tray app (`net10.0-windows10.0.19041.0`, single project `StintTracker.csproj`) that reads iRacing telemetry via `IRSDKSharper`, detects race/stint/lap/pit events, and posts them to a remote REST API. There is no test project and no linter configured.
@@ -9,9 +13,9 @@ A Windows-only WPF tray app (`net10.0-windows10.0.19041.0`, single project `Stin
 ## Commands
 
 ```powershell
-dotnet build StintTracker.csproj
-dotnet run --project StintTracker.csproj
-dotnet publish StintTracker.csproj -p:PublishProfile=ClickOnceProfile   # profiles in Properties/PublishProfiles
+dotnet build ingester/StintTracker.csproj
+dotnet run --project ingester/StintTracker.csproj
+dotnet publish ingester/StintTracker.csproj -p:PublishProfile=ClickOnceProfile   # profiles in Properties/PublishProfiles
 ```
 
 Telemetry only flows while iRacing is running; otherwise the app sits in "Waiting for iRacing".

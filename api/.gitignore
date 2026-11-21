@@ -1,0 +1,10 @@
+./.server
+__pycache__
+.env
+keys.json
+.server
+lambda.zip
+layer.zip
+python/
+.github
+.pylintrc
