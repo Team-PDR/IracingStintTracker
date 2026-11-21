@@ -1,0 +1,18 @@
+from pydantic import BaseModel, ConfigDict
+
+
+class LapBase(BaseModel):
+    number: int
+    end_time: float
+    lap_time: float
+    end_fuel: float
+
+
+class LapCreate(LapBase):
+    pass
+
+
+class LapRead(LapBase):
+    id: int
+    stint_id: int
+    model_config = ConfigDict(from_attributes=True)
