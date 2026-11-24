@@ -115,6 +115,7 @@ All rules apply per `(session_id, car_idx)` over events sorted by `(session_time
 - **Starts** at:
   - `pit_box_exited`;
   - `driver_entered` with `on_pit_road == false`;
+  - `driver_entered` on pit road but not in the box, with no stop in progress (a pit lane start);
   - `race_started`, if a `driver_entered` came before it.
 - **Ends** at:
   - `pit_box_entered`;

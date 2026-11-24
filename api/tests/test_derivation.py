@@ -283,6 +283,21 @@ def test_driver_in_car_before_race_start_gets_stint_at_start():
     assert t.stints[0].start_state.fuel == 100.0
 
 
+def test_pit_lane_start_begins_a_stint_and_is_a_drive_through():
+    r = Race()
+    t = derive(r, [
+        r.race_started(100, KAM),
+        r.entered(100, KAM, pit_road=True),
+        r.road_out(130, KAM),
+        r.lap(300, KAM, 1, 200.0),
+    ])
+
+    assert [(s.driver.name, s.start_time, s.end_time) for s in t.stints] == [("Kam Wilson", 100, None)]
+    assert t.pit_stops == []
+    assert len(t.drive_throughs) == 1
+    assert t.stints[0].lap_numbers == [1]
+
+
 def test_laps_deduplicated_invalid_times_nulled_and_assigned_to_stints():
     r = Race()
     t = derive(r, [

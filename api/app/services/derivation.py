@@ -264,6 +264,11 @@ class _Deriver:
 
             if self.stint is not None and self.stint.driver.user_id != ev.driver.user_id:
                 self._end_stint(self.last_time or ev.session_time, self.last_state, "superseded")
+
+            if not p["in_pit_box"] and not v.has_service:
+                # On pit road but not stopped, with no stop in progress: a pit
+                # lane start. The stint begins now, not at a box exit.
+                self._start_stint(ev.session_time, ev.driver, state, conditions)
             return
 
         # Entering on track.

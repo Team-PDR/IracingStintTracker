@@ -5,6 +5,7 @@ keys.json
 .server
 .venv
 .pytest_cache
+tests/client_sample.json
 lambda.zip
 layer.zip
 python/

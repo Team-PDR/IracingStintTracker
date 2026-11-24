@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ingester/StintTracker.csproj" />
+  <Project Path="ingester.Tests/StintTracker.Tests.csproj" />
 </Solution>

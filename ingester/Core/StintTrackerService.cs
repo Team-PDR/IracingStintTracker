@@ -1,78 +1,95 @@
 ﻿using StintTracker.Core;
-using StintTracker.Core.API;
-using StintTracker.Core.Dtos;
-using StintTracker.Core.Subscribers;
+using StintTracker.Core.Events;
+using StintTracker.Core.Outbox;
+using StintTracker.Core.Tracking;
 using System.Text;
-using System.Threading.Channels;
 
+/// <summary>
+/// Composition root: iRacing SDK → <see cref="RaceStateTracker"/> → durable
+/// <see cref="EventOutbox"/> → <see cref="EventSender"/> → API.
+/// </summary>
 public class StintTrackerService
 {
-    private readonly Channel<ITrackerDto> channel = Channel.CreateUnbounded<ITrackerDto>();
     private readonly CancellationTokenSource cts = new();
     private readonly TelemetryManager manager = new();
-    private Task? apiTask;
+    private Task? senderTask;
+    private TrackerStatus status = TrackerStatus.Offline;
 
     public event Action<bool>? OnIracingRunningChanged;
     public event Action<TrackerStatus>? OnTrackerStatusChanged;
     public event Action<bool>? OnApiConnectionChanged;
 
-    public void Start(string apiUrl, string apiKey)
+    public void Start(string apiUrl, string apiKey, double statusIntervalS = 10.0)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-        var apiClient = new ApiClient(channel, apiUrl, apiKey);
+        var factory = new EventFactory(ClientIdentity.Load());
+        var tracker = new RaceStateTracker(factory, statusIntervalS);
+        var outbox = new EventOutbox(EventOutbox.DefaultDirectory);
+        var sender = new EventSender(outbox, EventSender.CreateHttpClient(apiUrl, apiKey));
 
-        var sessionSubscriber = new SessionSubscriber(manager, channel);
-        var stintSubscriber = new StintSubscriber(manager, channel);
-        var pitstopSubscriber = new PitstopSubscriber(manager, channel);
-
-        apiClient.HealthChecked += status =>
+        int pending = outbox.Count;
+        if (pending > 0)
         {
-            OnApiConnectionChanged?.Invoke(status);
+            Console.WriteLine($"Outbox has {pending} unsent events from a previous run; sending them.");
+        }
+
+        sender.ConnectionChanged += connected => OnApiConnectionChanged?.Invoke(connected);
+
+        manager.SdkConnectionChange += running =>
+        {
+            OnIracingRunningChanged?.Invoke(running);
+            SetStatus(running ? TrackerStatus.Waiting : TrackerStatus.Offline);
         };
 
-        manager.SdkConnectionChange += status =>
+        manager.FrameReceived += frame =>
         {
-            OnIracingRunningChanged?.Invoke(status);
-
-            if (!status)
+            foreach (var ev in tracker.Process(frame))
             {
-                OnTrackerStatusChanged?.Invoke(TrackerStatus.Offline);
+                Console.WriteLine($"Event: {ev.Type} t={ev.SessionTime:F1} driver={ev.Driver.Name}");
+                outbox.Enqueue(ev);
+            }
+
+            if (tracker.RaceFinished)
+            {
+                SetStatus(TrackerStatus.Finished);
+            }
+            else if (tracker.RaceStarted)
+            {
+                SetStatus(TrackerStatus.Running);
             }
             else
             {
-                OnTrackerStatusChanged?.Invoke(TrackerStatus.Waiting);
+                SetStatus(TrackerStatus.Waiting);
             }
-        };
-
-        manager.RaceStarted += _ =>
-        {
-            OnTrackerStatusChanged?.Invoke(TrackerStatus.Running);
-        };
-
-        manager.RaceFinished += _ =>
-        {
-            OnTrackerStatusChanged?.Invoke(TrackerStatus.Finished);
         };
 
         OnIracingRunningChanged?.Invoke(false);
         OnTrackerStatusChanged?.Invoke(TrackerStatus.Offline);
+        OnApiConnectionChanged?.Invoke(false);
 
-        apiTask = Task.Run(() => apiClient.Run(cts.Token));
+        senderTask = Task.Run(() => sender.Run(cts.Token));
         manager.Start();
+    }
+
+    private void SetStatus(TrackerStatus next)
+    {
+        if (next == status)
+        {
+            return;
+        }
+        status = next;
+        OnTrackerStatusChanged?.Invoke(next);
     }
 
     public async Task Stop()
     {
-        if (cts == null) return;
-
         cts.Cancel();
         manager.Stop();
-        channel.Writer.Complete();
 
-        if (apiTask != null)
+        if (senderTask != null)
         {
-            await apiTask;
+            await senderTask;
         }
 
         Console.WriteLine("Shutting down");
