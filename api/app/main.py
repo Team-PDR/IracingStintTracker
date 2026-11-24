@@ -10,6 +10,7 @@ from app.routes import (
     session_router,
     stint_router,
     admin_router,
+    event_router,
 )
 
 logging.basicConfig(
@@ -27,6 +28,7 @@ app.include_router(session_router.router)
 app.include_router(stint_router.router)
 app.include_router(pit_router.router)
 app.include_router(lap_router.router)
+app.include_router(event_router.router)
 
 
 @app.get("/")

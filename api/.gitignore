@@ -3,6 +3,8 @@ __pycache__
 .env
 keys.json
 .server
+.venv
+.pytest_cache
 lambda.zip
 layer.zip
 python/

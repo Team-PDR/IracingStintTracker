@@ -4,7 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repo layout
 
-Monorepo: `ingester/` is the WPF app described below (all paths in this file are relative to it), `api/` is the FastAPI backend (its own `app/` package, `requirements.txt`; deployed to AWS Lambda by `.github/workflows/deploy-lambda.yml` on pushes to `main` that touch `api/**`). Keep the C# `Core/Dtos` in sync with the backend schemas.
+Monorepo: `ingester/` is the WPF app described below (all paths in this file are relative to it), `api/` is the FastAPI backend (its own `app/` package, `requirements.txt`; deployed to AWS Lambda by `.github/workflows/deploy-lambda.yml` on pushes to `main` that touch `api/**` — so never push work-in-progress to `main`). Keep the C# `Core/Dtos` in sync with the backend schemas.
+
+**Migration in progress:** the client→server contract is moving from create/patch records (`/sessions/.../stints`, `/pitstops`, `/laps`) to an append-only event log (`POST /v1/events`), with stints/pit stops/laps derived server-side. The contract is `docs/event-schema.md`; the derivation is `api/app/services/derivation.py`. The old routes stay until the new client ships.
+
+## Backend tests
+
+```powershell
+cd api
+python -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python -m pytest -q
+```
+
+Tests default to a throwaway SQLite file (`tests/conftest.py` sets `DATABASE_URL` before `app` is imported, because `app/database/db.py` connects and runs `create_all` at import). Set `TEST_DATABASE_URL` to run against a scratch Postgres database — never production. `api/requirements.txt` is UTF-16 encoded; edit it with care.
 
 ## What this is
 
